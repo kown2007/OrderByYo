@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.myapplication.xuan.orderbyyo.Register">
+
+    <TextView
+        android:id="@+id/tvUserR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25sp"
+        android:text="帳號" />
+
+    <EditText
+        android:id="@+id/etUserR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="User"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/tvPasswordR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25sp"
+        android:text="密碼" />
+
+    <EditText
+        android:id="@+id/etPasswordR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="Password"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/tvUser"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25sp"
+        android:text="姓名" />
+
+    <EditText
+        android:id="@+id/etNameR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text=""
+        android:hint="Name"/>
+
+    <TextView
+        android:id="@+id/tvPhoneR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="25sp"
+        android:text="電話" />
+
+    <EditText
+        android:id="@+id/etPhoneR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="number"
+        android:text=""
+        android:hint="Phone Number"/>
+
+    <Button
+        android:id="@+id/btnOkR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="clickOK"
+        android:text="確定(註冊)" />
+</LinearLayout>

@@ -1,0 +1,187 @@
+{
+  "project_info": {
+    "project_number": "955392937506",
+    "firebase_url": "https://listbox-7c39f.firebaseio.com",
+    "project_id": "listbox-7c39f",
+    "storage_bucket": "listbox-7c39f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955392937506:android:1db5a4ef0f1b3cad",
+        "android_client_info": {
+          "package_name": "com.myappone.xuan.firechat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955392937506-0hsfkumsrqtgbmahvr91b6r24kt0vmn0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.myappone.xuan.firechat",
+            "certificate_hash": "9ecab20f03171e8f7aff9896ebc89c7200ef2154"
+          }
+        },
+        {
+          "client_id": "955392937506-ch9gqqptmooa0ou4sqn3ps077ht7antr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHdG4R2zjA1Bi50zG4Kuut7nHnnn9-ZRU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955392937506-ch9gqqptmooa0ou4sqn3ps077ht7antr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955392937506:android:81966ccb7df9c993",
+        "android_client_info": {
+          "package_name": "com.muapplication.firechat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955392937506-7nk826bjkballu91vo4gk0r1cvjn45sj.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.muapplication.firechat",
+            "certificate_hash": "cd66d76dbc351e9944a244837bea4be3841cbf2a"
+          }
+        },
+        {
+          "client_id": "955392937506-ch9gqqptmooa0ou4sqn3ps077ht7antr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHdG4R2zjA1Bi50zG4Kuut7nHnnn9-ZRU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955392937506-ch9gqqptmooa0ou4sqn3ps077ht7antr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955392937506:android:8976038bdbc55ee2",
+        "android_client_info": {
+          "package_name": "com.myapp.xuan.yoconvenient"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955392937506-acqtbqh3a7b2r5hnucrqcd44aopabcmg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.myapp.xuan.yoconvenient",
+            "certificate_hash": "9ecab20f03171e8f7aff9896ebc89c7200ef2154"
+          }
+        },
+        {
+          "client_id": "955392937506-ch9gqqptmooa0ou4sqn3ps077ht7antr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHdG4R2zjA1Bi50zG4Kuut7nHnnn9-ZRU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955392937506-ch9gqqptmooa0ou4sqn3ps077ht7antr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:955392937506:android:8c11bdd8850ca30d",
+        "android_client_info": {
+          "package_name": "com.myapplication.xuan.orderbyyo"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "955392937506-bnamc30mgt6vm976nj7i73c0ilk3g04f.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.myapplication.xuan.orderbyyo",
+            "certificate_hash": "cd66d76dbc351e9944a244837bea4be3841cbf2a"
+          }
+        },
+        {
+          "client_id": "955392937506-ch9gqqptmooa0ou4sqn3ps077ht7antr.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHdG4R2zjA1Bi50zG4Kuut7nHnnn9-ZRU"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "955392937506-ch9gqqptmooa0ou4sqn3ps077ht7antr.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

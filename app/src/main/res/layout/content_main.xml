@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context="com.myapplication.xuan.orderbyyo.MainActivity"
+    tools:showIn="@layout/app_bar_main">
+
+    <fragment
+        android:id="@+id/fragment_Order"
+        android:name="com.myapplication.xuan.orderbyyo.OrderFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+         />
+
+    <fragment
+        android:id="@+id/fragment_Group"
+        android:name="com.myapplication.xuan.orderbyyo.GroupFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+    <fragment
+        android:id="@+id/fragment_AddOrder"
+        android:name="com.myapplication.xuan.orderbyyo.AddOrderFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <fragment
+        android:id="@+id/fragment_GroupAdd"
+        android:name="com.myapplication.xuan.orderbyyo.GroupAddFragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1" />
+
+</LinearLayout>
