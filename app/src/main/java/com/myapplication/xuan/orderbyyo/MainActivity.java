@@ -49,9 +49,13 @@ public class MainActivity extends AppCompatActivity
     Boolean blSignIn;
     Boolean blGroup=false;
     String user;
+    public String nextChoose1,nextChoose2;
     public List mygroup;
     TextView navname,navtitle;
     View header;
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +72,7 @@ public class MainActivity extends AppCompatActivity
         addOrderFragment = (AddOrderFragment) fm.findFragmentById(R.id.fragment_AddOrder);
         groupAddFragment = (GroupAddFragment) fm.findFragmentById(R.id.fragment_GroupAdd);
         nextOrderFragment = (NextOrderFragment) fm.findFragmentById(R.id.fragment_NextOrder);
+
 
         mygroup = new ArrayList();
 
@@ -154,6 +159,7 @@ public class MainActivity extends AppCompatActivity
                 .hide(groupAddFragment)
                 .hide(nextOrderFragment)
                 .commit();
+
     }
 
 
@@ -277,6 +283,7 @@ public class MainActivity extends AppCompatActivity
         ft = fm.beginTransaction();
         ft.hide(nextOrderFragment).show(orderFragment).commit();
     }
+
 
 
 }

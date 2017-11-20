@@ -58,7 +58,8 @@ public class OrderFragment extends Fragment {
     private List foodlist,drinklist,ODclickList,nextList;
     private ListView orderlistView;
     private ArrayAdapter adapterOrder,nextadapter,saveadapter;
-    private String myChoose="",clickChoose="",OLG;
+    public String myChoose="",clickChoose="",OLG;
+    Bundle bundle;
 
     //============================================//
 
@@ -270,10 +271,7 @@ public class OrderFragment extends Fragment {
                            clickChoose = drinklist.get(position).toString();
                         }
 
-                    ((MainActivity)getActivity()).editor
-                            .putString("Choose1",myChoose)
-                            .putString("Choose2",clickChoose)
-                            .commit();
+
                     //取按下選項的詳細資料
                     ref.addValueEventListener(new ValueEventListener() {
                             @Override
