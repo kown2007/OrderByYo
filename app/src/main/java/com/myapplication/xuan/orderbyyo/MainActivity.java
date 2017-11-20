@@ -22,18 +22,33 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
+
     FragmentManager fm;
     FragmentTransaction ft;
     OrderFragment orderFragment;
     GroupFragment groupFragment;
     AddOrderFragment addOrderFragment;
     GroupAddFragment groupAddFragment;
+
+    DatabaseReference ref;
+
     Boolean blSignIn;
     Boolean blGroup=false;
+    String user;
+    public List mygroup;
     TextView navname,navtitle;
     View header;
     @Override
@@ -41,16 +56,19 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setTitle("Home");
+        //設置Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        //設置Fragment
         fm = getSupportFragmentManager();
         orderFragment = (OrderFragment) fm.findFragmentById(R.id.fragment_Order) ;
         groupFragment = (GroupFragment) fm.findFragmentById(R.id.fragment_Group);
         addOrderFragment = (AddOrderFragment) fm.findFragmentById(R.id.fragment_AddOrder);
         groupAddFragment = (GroupAddFragment) fm.findFragmentById(R.id.fragment_GroupAdd);
-        ft = fm.beginTransaction();
-        ft.hide(orderFragment).hide(groupFragment).hide(addOrderFragment).commit();
+
+
+        mygroup = new ArrayList();
 
 
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -71,6 +89,7 @@ public class MainActivity extends AppCompatActivity
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
+        //設置側選單
         header = navigationView.inflateHeaderView(R.layout.nav_header_main);
         navname = (TextView) header.findViewById(R.id.nav_tvName);
         navtitle = (TextView) header.findViewById(R.id.nav_tvTitle);
@@ -80,17 +99,58 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
+        //取SharePrefrernces資料
         sharedPreferences = getSharedPreferences("userList", Context.MODE_PRIVATE);
         editor = sharedPreferences.edit();
         blSignIn = sharedPreferences.getBoolean("SignIn",false);
+        //判斷是否登入
         if(!blSignIn){
             Intent signIn = new Intent();
             signIn.setClass(MainActivity.this,SignIn.class);
             startActivity(signIn);
         }
+
+        //取自己有的群組
+        user = sharedPreferences.getString("User",null);
+        ref = FirebaseDatabase.getInstance().getReference("Users");
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mygroup.clear();
+                for(DataSnapshot ds:dataSnapshot.getChildren()){
+                    if(ds.getKey().toString().equals(user)) {
+                        for(DataSnapshot s: ds.child("group").getChildren()){
+                            mygroup.add(s.getKey().toString());
+                        }
+                    }
+                }
+                if(mygroup.size()>0) {
+                    navtitle.setText("Group:" + mygroup.toString());
+                }else{
+                    navtitle.setText("您尚未加入任何群組!");
+                }
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+        //設置側選單使用者名稱
         navname.setText(sharedPreferences.getString("User",null));
+
         Log.d("NETTT",""+sharedPreferences.getString("User",null));
+
+
+        //隱藏所有的Fragment
+        ft = fm.beginTransaction();
+        ft.hide(orderFragment).hide(groupFragment).hide(addOrderFragment).hide(groupAddFragment).commit();
     }
+
+
 
     @Override
     public void onBackPressed() {
@@ -102,6 +162,8 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+
+    /////////右上角選單設定///////////
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -130,14 +192,14 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
+
+    ////////////////////側選單設置///////////////
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
         ft = fm.beginTransaction();
-
-
 
         if (id == R.id.nav_home) {
             // Handle the camera action
@@ -163,39 +225,38 @@ public class MainActivity extends AppCompatActivity
                     Intent signIn = new Intent();
                     signIn.setClass(MainActivity.this,SignIn.class);
                     startActivity(signIn);
+                    ft.hide(orderFragment)
+                            .hide(groupFragment)
+                            .hide(addOrderFragment)
+                            .hide(groupFragment)
+                            .commit();
                 }
             });
             builder.show();
         }
-//          else if (id == R.id.nav_share) {
-//
-//        } else if (id == R.id.nav_send) {
-//
-//        }
-
-
-
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+
+    //開啟新增點餐的Fragment
     public void ShowAddOrder(){
         ft = fm.beginTransaction();
         ft.hide(orderFragment).show(addOrderFragment).commit();
     }
-
+    //關閉新增點餐的Fragment
     public void CloseAddOrder(){
         ft = fm.beginTransaction();
         ft.show(orderFragment).hide(addOrderFragment).commit();
     }
 
+    //開啟新增群組的Fragment
     public void ShowAddGroup(){
         ft = fm.beginTransaction();
         ft.hide(groupFragment).show(groupAddFragment).commit();
     }
-
+    //關閉新增群組的Fragment
     public void CloseAddGroup(){
         ft = fm.beginTransaction();
         ft.show(groupFragment).hide(groupAddFragment).commit();

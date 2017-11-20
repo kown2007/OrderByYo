@@ -1,6 +1,8 @@
 package com.myapplication.xuan.orderbyyo;
 
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
@@ -8,6 +10,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,11 +18,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -54,13 +60,14 @@ public class GroupFragment extends Fragment {
     private TextView GroupMy,GroupAll;
     private DatabaseReference ref;
     private DatabaseReference mref;
-    private View view;
+    private View view,vpasscheck;
     private ListView listView;
     private List grouplist,mygroup;
     private ArrayAdapter adapter;
     private String user;
     private SharedPreferences sharedPreferences;
     private Button btnAddGroup;
+    private EditText etPC;
 
 
 
@@ -102,6 +109,7 @@ public class GroupFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_group, container, false);
+        vpasscheck = inflater.inflate(R.layout.passcheck,container,false);
         setHasOptionsMenu(true);
         ref = FirebaseDatabase.getInstance().getReference("Group");
         mref = FirebaseDatabase.getInstance().getReference("Users");
@@ -115,6 +123,7 @@ public class GroupFragment extends Fragment {
         btnAddGroup.setOnClickListener(btnListener);
         grouplist = new ArrayList();
         mygroup = new ArrayList();
+        etPC = (EditText) vpasscheck.findViewById(R.id.etCheckPassword);
 
 
 
@@ -127,26 +136,9 @@ public class GroupFragment extends Fragment {
         sharedPreferences =this.getActivity().getSharedPreferences("userList", Context.MODE_PRIVATE);
         user = sharedPreferences.getString("User",null);
 
-        /////尋覽使用者的群組
-        mref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mygroup.clear();
-                for(DataSnapshot ds:dataSnapshot.getChildren()){
-                    if(ds.getKey().toString().equals(user)) {
-                        for(DataSnapshot s: ds.child("group").getChildren()){
-                            mygroup.add(s.getKey().toString());
-                            Log.d("MMMM", s.toString());
-                        }
-                    }
-                }
-            }
+        //取出使用者群組
+        mygroup = ((MainActivity)getActivity()).mygroup;
 
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
 
         //尋覽所有群組
         ref.addValueEventListener(new ValueEventListener() {
@@ -156,6 +148,8 @@ public class GroupFragment extends Fragment {
                 for(DataSnapshot ds:dataSnapshot.getChildren()){
                     grouplist.add(ds.getKey().toString());
                 }
+
+
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -163,8 +157,7 @@ public class GroupFragment extends Fragment {
             }
         });
 
-//        adapter = new ArrayAdapter(this.getActivity(), android.R.layout.simple_list_item_1,mygroup);
-//        listView.setAdapter(adapter);
+
 
     }
 
@@ -236,17 +229,78 @@ public class GroupFragment extends Fragment {
         @Override
         public void onClick(View v) {
             switch (v.getId()){
-                case R.id.tvGroupMy:
+                case R.id.tvGroupMy://選取我的群組時
                     GroupMy.setBackgroundColor(Color.parseColor("#66FFE6"));
                     GroupAll.setBackgroundColor(Color.WHITE);
                     adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,mygroup);
                     listView.setAdapter(adapter);
+                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            Log.d("MMM",""+mygroup.get(position));
+                        }
+                    });
                     break;
-                case R.id.tvGroupAll:
+                case R.id.tvGroupAll://選取所有群組時
                     GroupMy.setBackgroundColor(Color.WHITE);
                     GroupAll.setBackgroundColor(Color.parseColor("#66FFE6"));
                     adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,grouplist);
                     listView.setAdapter(adapter);
+                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override/////第一個對話視窗/////////////////////////////////////////////////////
+                        public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle("要申請加入群組嗎?");
+                            builder.setMessage("Do you want to join this group?");
+                            builder.setPositiveButton("No",null);
+                            builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override////第二個對話視窗/////////////////////////////////////////////
+                                public void onClick(DialogInterface dialog, int which) {
+                                    AlertDialog.Builder builder2 = new AlertDialog.Builder(getActivity());
+                                    //////////////////////////////////////////////////////////////
+                                    if(vpasscheck.getParent() != null){
+                                        ((ViewGroup)vpasscheck.getParent()).removeView(vpasscheck);
+                                    }
+                                    //////////////////////////////////////////////////////////////
+                                    builder2.setView(vpasscheck);
+                                    builder2.setTitle("請輸入群組密碼");
+                                    builder2.setPositiveButton("取消",null);
+                                    builder2.setNegativeButton("確定", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            ref.addValueEventListener(new ValueEventListener() {
+                                                @Override
+                                                public void onDataChange(DataSnapshot dataSnapshot) {
+                                                    for(DataSnapshot ds:dataSnapshot.getChildren()){
+                                                        if(ds.getKey().toString().equals(grouplist.get(position))){
+                                                            /////////////////判斷密碼正不正確////////////////////////
+                                                            if(etPC.getText().toString().equals(ds.child("password").getValue().toString())){
+                                                                mref.child(user).child("group")
+                                                                        .child(grouplist.get(position).toString())
+                                                                        .setValue(grouplist.get(position));
+                                                                Toast.makeText(getActivity(),"成功!!Successful!!",Toast.LENGTH_SHORT).show();
+                                                            }else {
+                                                                Toast.makeText(getActivity(),"密碼錯誤!!Wrong!!",Toast.LENGTH_SHORT).show();
+                                                            }
+
+                                                            etPC.setText("");
+                                                        }
+                                                    }
+                                                }
+
+                                                @Override
+                                                public void onCancelled(DatabaseError databaseError) {
+
+                                                }
+                                            });
+                                        }
+                                    });
+                                    builder2.show();
+                                }
+                            });
+                            builder.show();
+                        }
+                    });
                     break;
             }
 
@@ -259,4 +313,5 @@ public class GroupFragment extends Fragment {
             ((MainActivity)getActivity()).ShowAddGroup();
         }
     };
+
 }
