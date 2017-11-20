@@ -1,19 +1,24 @@
 package com.myapplication.xuan.orderbyyo;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -21,6 +26,9 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -47,6 +55,10 @@ public class OrderFragment extends Fragment {
     private FragmentManager fm;
     private FragmentTransaction ft;
     private Button btnAddOrder;
+    private List foodlist,drinklist,ODclickList,nextList;
+    private ListView orderlistView;
+    private ArrayAdapter adapterOrder,nextadapter,saveadapter;
+    private String myChoose="",clickChoose="",OLG;
 
     //============================================//
 
@@ -90,17 +102,32 @@ public class OrderFragment extends Fragment {
 
         view = inflater.inflate(R.layout.fragment_order, container, false);
         setHasOptionsMenu(true);
-        ref = FirebaseDatabase.getInstance().getReference();
+
+        ref = FirebaseDatabase.getInstance().getReference("OrderList");
         orderFood = (TextView)view.findViewById(R.id.tvOrderFood);
         orderDrink = (TextView)view.findViewById(R.id.tvOrderDrink);
         btnAddOrder = (Button) view.findViewById(R.id.btnOrderadd);
+        orderlistView = (ListView) view.findViewById(R.id.listView_Order);
 
-        ref.addValueEventListener(OrderVEL);
+
+        foodlist = new ArrayList();
+        drinklist = new ArrayList();
+        ODclickList = new ArrayList();
+        nextList = new ArrayList();
+
         orderFood.setOnClickListener(ClickFood);
         orderDrink.setOnClickListener(ClickFood);
         btnAddOrder.setOnClickListener(ClickBtnAdd);
         return view;
 
+    }
+
+    @Override
+    public void onResume() {
+
+        ref.addValueEventListener(OrderVEL);
+        orderlistView.setOnItemClickListener(OrderListListener);
+        super.onResume();
     }
 
     @Override
@@ -170,7 +197,23 @@ public class OrderFragment extends Fragment {
     public ValueEventListener OrderVEL = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
+                foodlist.clear();
+                drinklist.clear();
+                for(DataSnapshot ds:dataSnapshot.getChildren()){
+                    if(ds.getKey().toString().equals("Food")){
+                        for(DataSnapshot s:ds.getChildren()){
+                            foodlist.add(s.getKey().toString());
+                        }
 
+                    }
+                    else
+                    if(ds.getKey().toString().equals("Drink")){
+                        for(DataSnapshot s:ds.getChildren()){
+                            drinklist.add(s.getKey().toString());
+                        }
+
+                    }
+                }
         }
 
         @Override
@@ -187,10 +230,18 @@ public class OrderFragment extends Fragment {
                 case R.id.tvOrderFood:
                     orderFood.setBackgroundColor(Color.parseColor("#66FFE6"));
                     orderDrink.setBackgroundColor(Color.WHITE);
+                    adapterOrder = new ArrayAdapter(
+                            getActivity(),android.R.layout.simple_list_item_1,foodlist);
+                    orderlistView.setAdapter(adapterOrder);
+                    myChoose = "Food";
                     break;
                 case R.id.tvOrderDrink:
                     orderFood.setBackgroundColor(Color.WHITE);
                     orderDrink.setBackgroundColor(Color.parseColor("#66FFE6"));
+                    adapterOrder = new ArrayAdapter(
+                            getActivity(),android.R.layout.simple_list_item_1,drinklist);
+                    orderlistView.setAdapter(adapterOrder);
+                    myChoose = "Drink";
                     break;
             }
         }
@@ -204,4 +255,63 @@ public class OrderFragment extends Fragment {
     };
 
 
+
+    private AdapterView.OnItemClickListener OrderListListener =
+            new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    saveadapter = adapterOrder;
+                    //判斷現在位於哪個選單進而判斷選單選項
+                    if(myChoose.equals("Food")){
+                        clickChoose = foodlist.get(position).toString();
+
+                    }else
+                        if(myChoose.equals("Drink")){
+                           clickChoose = drinklist.get(position).toString();
+                        }
+
+                    ((MainActivity)getActivity()).editor
+                            .putString("Choose1",myChoose)
+                            .putString("Choose2",clickChoose)
+                            .commit();
+                    //取按下選項的詳細資料
+                    ref.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                ODclickList.clear();
+                                for(DataSnapshot ds:dataSnapshot.getChildren()){
+                                    if(ds.getKey().toString().equals(myChoose)) {
+                                        for (DataSnapshot s : ds.child(clickChoose).getChildren()) {
+                                            if(s.getKey().toString().equals("group")){
+                                                OLG = s.getValue().toString();    //取出此訂單是哪個群的
+                                            }else {
+                                                ODclickList.add(s.getKey().toString());
+                                            }
+                                        }
+
+
+                                    }
+                                }
+
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+                    ((MainActivity)getActivity()).ShowNextOrder();
+                }
+            };
+
+
+    public AdapterView.OnItemClickListener nextListener = new AdapterView.OnItemClickListener() {
+                @Override
+                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                    if(position==0){
+
+                    }
+                }
+            };
 }

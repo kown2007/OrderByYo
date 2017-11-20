@@ -149,7 +149,6 @@ public class GroupFragment extends Fragment {
                     grouplist.add(ds.getKey().toString());
                 }
 
-
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {

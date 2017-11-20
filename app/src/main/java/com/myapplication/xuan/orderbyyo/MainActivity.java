@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity
     GroupFragment groupFragment;
     AddOrderFragment addOrderFragment;
     GroupAddFragment groupAddFragment;
+    NextOrderFragment nextOrderFragment;
 
     DatabaseReference ref;
 
@@ -66,7 +67,7 @@ public class MainActivity extends AppCompatActivity
         groupFragment = (GroupFragment) fm.findFragmentById(R.id.fragment_Group);
         addOrderFragment = (AddOrderFragment) fm.findFragmentById(R.id.fragment_AddOrder);
         groupAddFragment = (GroupAddFragment) fm.findFragmentById(R.id.fragment_GroupAdd);
-
+        nextOrderFragment = (NextOrderFragment) fm.findFragmentById(R.id.fragment_NextOrder);
 
         mygroup = new ArrayList();
 
@@ -147,7 +148,12 @@ public class MainActivity extends AppCompatActivity
 
         //隱藏所有的Fragment
         ft = fm.beginTransaction();
-        ft.hide(orderFragment).hide(groupFragment).hide(addOrderFragment).hide(groupAddFragment).commit();
+        ft.hide(orderFragment)
+                .hide(groupFragment)
+                .hide(addOrderFragment)
+                .hide(groupAddFragment)
+                .hide(nextOrderFragment)
+                .commit();
     }
 
 
@@ -260,6 +266,16 @@ public class MainActivity extends AppCompatActivity
     public void CloseAddGroup(){
         ft = fm.beginTransaction();
         ft.show(groupFragment).hide(groupAddFragment).commit();
+    }
+
+    public void ShowNextOrder(){
+        ft = fm.beginTransaction();
+        ft.show(nextOrderFragment).hide(orderFragment).commit();
+    }
+
+    public void CloseNextOrder(){
+        ft = fm.beginTransaction();
+        ft.hide(nextOrderFragment).show(orderFragment).commit();
     }
 
 
