@@ -52,9 +52,10 @@ public class NextOrderFragment extends Fragment {
     private ListView listView_next;
     private ArrayAdapter adapter_next;
     private Button btnNextOK,btnNextC;
-    private String choose1,choose2,OLG;
+    public String choose1,choose2,OLG;
     private List nextList,myorderList,priceList,checklist;
     private int total;
+    MainActivity activity;
 
 
 
@@ -92,6 +93,8 @@ public class NextOrderFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        activity = (MainActivity)getActivity();
+
     }
 
     @Override
@@ -119,39 +122,7 @@ public class NextOrderFragment extends Fragment {
 
     @Override
     public void onResume() {
-
-
-        //取按下選項的詳細資料
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                nextList.clear();
-                for(DataSnapshot ds:dataSnapshot.getChildren()){
-                    if(ds.getKey().toString().equals(choose1)) {
-                        for (DataSnapshot s : ds.child(choose2).getChildren()) {
-                            if(s.getKey().toString().equals("group")){
-                                OLG = s.getValue().toString();    //取出此訂單是哪個群的
-                            }else {
-                                nextList.add(s.getKey().toString()+" : "+s.getValue()+"$");
-                                priceList.add(s.getValue());
-                            }
-                        }
-                    }
-                }
-                for(Object ob:nextList){
-                    checklist.add(false);
-                }
-                adapter_next = new ArrayAdapter(getActivity(),
-                        android.R.layout.simple_list_item_checked,nextList);
-                listView_next.setAdapter(adapter_next);
-                listView_next.setOnItemClickListener(ODcheckListener);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        SetList();
         super.onResume();
     }
 
@@ -253,5 +224,43 @@ public class NextOrderFragment extends Fragment {
             }
         }
     }
+
+    public void SetList(){
+        //取按下選項的詳細資料
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                nextList.clear();
+                choose1 = activity.nextChoose1;
+                choose2 = activity.nextChoose2;
+                Log.d("AASSS", choose1 + "=" + choose2);
+                for(DataSnapshot ds:dataSnapshot.getChildren()){
+                    if(ds.getKey().toString().equals(choose1)) {
+                        for (DataSnapshot s : ds.child(choose2).getChildren()) {
+                            if(s.getKey().toString().equals("group")){
+                                OLG = s.getValue().toString();    //取出此訂單是哪個群的
+                            }else {
+                                nextList.add(s.getKey().toString()+" : "+s.getValue()+"$");
+                                priceList.add(s.getValue());
+                            }
+                        }
+                    }
+                }
+                for(Object ob:nextList){
+                    checklist.add(false);
+                }
+                adapter_next = new ArrayAdapter(getActivity(),
+                        android.R.layout.simple_list_item_checked,nextList);
+                listView_next.setAdapter(adapter_next);
+                listView_next.setOnItemClickListener(ODcheckListener);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
 
 }

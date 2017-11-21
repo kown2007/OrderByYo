@@ -1,5 +1,6 @@
 package com.myapplication.xuan.orderbyyo;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -60,6 +61,7 @@ public class OrderFragment extends Fragment {
     private ArrayAdapter adapterOrder,nextadapter,saveadapter;
     public String myChoose="",clickChoose="",OLG;
     Bundle bundle;
+    MainActivity activity;
 
     //============================================//
 
@@ -78,14 +80,14 @@ public class OrderFragment extends Fragment {
      * @return A new instance of fragment OrderFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static OrderFragment newInstance(String param1, String param2) {
-        OrderFragment fragment = new OrderFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+//    public static OrderFragment newInstance(String param1, String param2) {
+//        OrderFragment fragment = new OrderFragment();
+//        Bundle args = new Bundle();
+//        args.putString(ARG_PARAM1, param1);
+//        args.putString(ARG_PARAM2, param2);
+//        fragment.setArguments(args);
+//        return fragment;
+//    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -94,6 +96,7 @@ public class OrderFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+        activity =((MainActivity) getActivity());
     }
 
     @Override
@@ -299,7 +302,11 @@ public class OrderFragment extends Fragment {
                             }
                         });
 
-                    ((MainActivity)getActivity()).ShowNextOrder();
+                    activity.nextChoose1 = myChoose;
+                    activity.nextChoose2 = clickChoose;
+                    //((MainActivity)getActivity()).getOrder1();
+                    activity.ShowNextOrder();
+                    Log.d("AASSS","OD:"+activity.nextChoose1+":"+activity.nextChoose2);
                 }
             };
 
@@ -312,4 +319,5 @@ public class OrderFragment extends Fragment {
                     }
                 }
             };
+
 }

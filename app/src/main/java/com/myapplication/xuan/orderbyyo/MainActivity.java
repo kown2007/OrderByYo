@@ -277,6 +277,7 @@ public class MainActivity extends AppCompatActivity
     public void ShowNextOrder(){
         ft = fm.beginTransaction();
         ft.show(nextOrderFragment).hide(orderFragment).commit();
+        nextOrderFragment.SetList();
     }
 
     public void CloseNextOrder(){
