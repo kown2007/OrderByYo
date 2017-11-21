@@ -4,19 +4,19 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_home"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/home_icon"
             android:title="Home首頁" />
         <item
             android:id="@+id/nav_order"
-            android:icon="@drawable/orderimg0"
+            android:icon="@drawable/order_icon"
             android:title="Order點餐" />
         <item
             android:id="@+id/nav_group"
-            android:icon="@drawable/ic_menu_slideshow"
+            android:icon="@drawable/group_icon"
             android:title="Group群組" />
         <item
             android:id="@+id/nav_logout"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/logout_icon"
             android:title="Logout登出" />
     </group>
 
