@@ -16,6 +16,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -54,7 +55,8 @@ public class NextOrderFragment extends Fragment {
     private Button btnNextOK,btnNextC;
     public String choose1,choose2,OLG;
     private List nextList,myorderList,priceList,checklist;
-    private int total;
+    private int total=0;
+    private TextView tvTotal;
     MainActivity activity;
 
 
@@ -107,6 +109,7 @@ public class NextOrderFragment extends Fragment {
         listView_next = (ListView)view.findViewById(R.id.listView_next);
         btnNextOK = (Button)view.findViewById(R.id.btnNextOK);
         btnNextC = (Button)view.findViewById(R.id.btnNextCancel);
+
 
         nextList = new ArrayList();
         myorderList =new ArrayList();
@@ -172,28 +175,44 @@ public class NextOrderFragment extends Fragment {
             switch (v.getId()){
                 case R.id.btnNextOK:
                     Total();
-                    ListView lvCO =
-                            (ListView) vCheckOrder.findViewById(R.id.lv_CheckOrder);
-                    ArrayAdapter adapterCO =
-                            new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,myorderList);
-                    lvCO.setAdapter(adapterCO);
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle("Order List(您的餐點)");
-                    //
-                    if(vCheckOrder.getParent() != null){
-                        ((ViewGroup)vCheckOrder.getParent()).removeView(vCheckOrder);
-                    }
-                    //
-                    builder.setView(vCheckOrder);
-                    builder.setPositiveButton("取消",null);
-                    builder.setNegativeButton("確定", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
+                    if(total==0){
+                        AlertDialog.Builder builder0 = new AlertDialog.Builder(getActivity());
+                        builder0.setTitle("No Order(沒有點任何餐)");
+                        builder0.setMessage("您沒有點任何餐!!(Order nothing)");
+                        builder0.setPositiveButton("取消", null);
+                        builder0.setNegativeButton("確定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                activity.CloseNextOrder();
+                            }
+                        });
+                        builder0.show();
+                    }else {
+                        ListView lvCO =
+                                (ListView) vCheckOrder.findViewById(R.id.lv_CheckOrder);
+                        tvTotal = (TextView)vCheckOrder.findViewById(R.id.tvNextTotal);
+                        tvTotal.setText("Total:"+total+"$");
+                        ArrayAdapter adapterCO =
+                                new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, myorderList);
+                        lvCO.setAdapter(adapterCO);
 
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setTitle("Order List(您的餐點)");
+                        //
+                        if (vCheckOrder.getParent() != null) {
+                            ((ViewGroup) vCheckOrder.getParent()).removeView(vCheckOrder);
                         }
-                    });
-                    builder.show();
+                        //
+                        builder.setView(vCheckOrder);
+                        builder.setPositiveButton("取消", null);
+                        builder.setNegativeButton("確定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
 
+                            }
+                        });
+                        builder.show();
+                    }
                     break;
                 case R.id.btnNextCancel:
                     ((MainActivity)getActivity()).CloseNextOrder();
@@ -217,6 +236,7 @@ public class NextOrderFragment extends Fragment {
 
     public void Total(){
         myorderList.clear();
+        total = 0;
         for(int i=0;i<nextList.size();i++){
             if(checklist.get(i).equals(true)){
                 myorderList.add(nextList.get(i));

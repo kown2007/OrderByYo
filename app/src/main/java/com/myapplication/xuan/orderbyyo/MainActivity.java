@@ -77,14 +77,14 @@ public class MainActivity extends AppCompatActivity
         mygroup = new ArrayList();
 
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+//                        .setAction("Action", null).show();
+//            }
+//        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -130,11 +130,15 @@ public class MainActivity extends AppCompatActivity
                         }
                     }
                 }
+
+                //設置側選單群組列
                 if(mygroup.size()>0) {
                     navtitle.setText("Group:" + mygroup.toString());
                 }else{
                     navtitle.setText("您尚未加入任何群組!");
                 }
+
+
 
             }
 
@@ -148,7 +152,6 @@ public class MainActivity extends AppCompatActivity
         //設置側選單使用者名稱
         navname.setText(sharedPreferences.getString("User",null));
 
-        Log.d("NETTT",""+sharedPreferences.getString("User",null));
 
 
         //隱藏所有的Fragment
@@ -220,7 +223,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_order) {
             ft.show(orderFragment).hide(groupFragment).commit();
             setTitle("Order System");
-
+            orderFragment.getMyGroupList();
         } else if (id == R.id.nav_group) {
             ft.show(groupFragment).hide(orderFragment).commit();
             setTitle("Group Item");
@@ -274,12 +277,13 @@ public class MainActivity extends AppCompatActivity
         ft.show(groupFragment).hide(groupAddFragment).commit();
     }
 
+    //跳出餐點menu
     public void ShowNextOrder(){
         ft = fm.beginTransaction();
         ft.show(nextOrderFragment).hide(orderFragment).commit();
         nextOrderFragment.SetList();
     }
-
+    //關閉點單
     public void CloseNextOrder(){
         ft = fm.beginTransaction();
         ft.hide(nextOrderFragment).show(orderFragment).commit();

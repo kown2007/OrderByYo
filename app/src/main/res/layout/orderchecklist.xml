@@ -7,4 +7,11 @@
         android:id="@+id/lv_CheckOrder"
         android:layout_width="match_parent"
         android:layout_height="300sp" />
+    <TextView
+        android:id="@+id/tvNextTotal"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_gravity="bottom"
+        android:textSize="25sp"
+        android:text="" />
 </LinearLayout>

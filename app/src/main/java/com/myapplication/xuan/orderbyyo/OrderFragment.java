@@ -56,7 +56,7 @@ public class OrderFragment extends Fragment {
     private FragmentManager fm;
     private FragmentTransaction ft;
     private Button btnAddOrder;
-    private List foodlist,drinklist,ODclickList,nextList;
+    private List foodlist,drinklist,ODclickList,groupList;
     private ListView orderlistView;
     private ArrayAdapter adapterOrder,nextadapter,saveadapter;
     public String myChoose="",clickChoose="",OLG;
@@ -117,7 +117,7 @@ public class OrderFragment extends Fragment {
         foodlist = new ArrayList();
         drinklist = new ArrayList();
         ODclickList = new ArrayList();
-        nextList = new ArrayList();
+        groupList = new ArrayList();
 
         orderFood.setOnClickListener(ClickFood);
         orderDrink.setOnClickListener(ClickFood);
@@ -206,14 +206,24 @@ public class OrderFragment extends Fragment {
                 for(DataSnapshot ds:dataSnapshot.getChildren()){
                     if(ds.getKey().toString().equals("Food")){
                         for(DataSnapshot s:ds.getChildren()){
-                            foodlist.add(s.getKey().toString());
+                            for(Object ob:groupList) {
+                                if(s.child("group").getValue().toString().equals(ob.toString())) {
+                                    foodlist.add(s.getKey().toString());
+                                }
+                                Log.d("GGGGG",s.child("group").getValue().toString());
+                                Log.d("GGGGG","=="+ob.toString());
+                            }
                         }
 
                     }
                     else
                     if(ds.getKey().toString().equals("Drink")){
                         for(DataSnapshot s:ds.getChildren()){
-                            drinklist.add(s.getKey().toString());
+                            for(Object ob:groupList) {
+                                if (s.child("group").getValue().toString().equals(ob.toString())) {
+                                    drinklist.add(s.getKey().toString());
+                                }
+                            }
                         }
 
                     }
@@ -289,8 +299,6 @@ public class OrderFragment extends Fragment {
                                                 ODclickList.add(s.getKey().toString());
                                             }
                                         }
-
-
                                     }
                                 }
 
@@ -304,7 +312,7 @@ public class OrderFragment extends Fragment {
 
                     activity.nextChoose1 = myChoose;
                     activity.nextChoose2 = clickChoose;
-                    //((MainActivity)getActivity()).getOrder1();
+
                     activity.ShowNextOrder();
                     Log.d("AASSS","OD:"+activity.nextChoose1+":"+activity.nextChoose2);
                 }
@@ -319,5 +327,16 @@ public class OrderFragment extends Fragment {
                     }
                 }
             };
+
+    public void getMyGroupList(){
+        groupList.clear();
+        for(Object ob:activity.mygroup){
+                   groupList.add(ob.toString());
+               }
+        ref.addValueEventListener(OrderVEL);
+        orderlistView.setOnItemClickListener(OrderListListener);
+
+    }
+
 
 }
