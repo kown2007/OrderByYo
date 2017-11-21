@@ -259,9 +259,11 @@ public class NextOrderFragment extends Fragment {
                         for (DataSnapshot s : ds.child(choose2).getChildren()) {
                             if(s.getKey().toString().equals("group")){
                                 OLG = s.getValue().toString();    //取出此訂單是哪個群的
-                            }else {
-                                nextList.add(s.getKey().toString()+" : "+s.getValue()+"$");
-                                priceList.add(s.getValue());
+                            }else if(s.getKey().toString().equals("menu")){
+                                for(DataSnapshot ss:s.getChildren()) {
+                                    nextList.add(ss.getKey().toString() + " : " + ss.getValue() + "$");
+                                    priceList.add(ss.getValue());
+                                }
                             }
                         }
                     }
