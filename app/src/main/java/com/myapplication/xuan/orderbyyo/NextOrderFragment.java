@@ -55,7 +55,7 @@ public class NextOrderFragment extends Fragment {
     private Button btnNextOK,btnNextC;
     public String choose1,choose2,OLG;
     private List nextList,myorderList,priceList,checklist,orderList_next;
-    private int total=0,saveTotal=0;
+    private int total=0,saveTotal=0,saveChoose=0;
     private TextView tvTotal;
     MainActivity activity;
     boolean bl,firstOD,ODcount;
@@ -231,12 +231,12 @@ public class NextOrderFragment extends Fragment {
                                         }
 
                                         //如果是第一次點此單,建立菜單
-                                        if(!firstOD){
+
                                             ref.child(choose1).child(choose2).child("List")
-                                                    .child(activity.user).child("total").setValue(0);
+                                                    .child(activity.user).child("total").setValue(total);
                                             int count =0;
+                                            saveTotal=0;
                                             for(Object ob:nextList){
-                                                Log.d("AAAAA",checklist.get(count).toString());
                                                 if(checklist.get(count).equals(false)){
                                                     ref.child(choose1).child(choose2).child("List")
                                                             .child(activity.user).child(ob.toString()).setValue(0);
@@ -246,84 +246,47 @@ public class NextOrderFragment extends Fragment {
                                                 }
                                                 count++;
                                             }
-                                            firstOD = true;
-                                        }
 
-                                        if(!bl) {
-                                            if(!ODcount) {
-                                                saveTotal=0;
-                                                for (int i = 0; i < myorderList.size(); i++) {
-                                                    if (i == (myorderList.size() - 1)) {
-                                                        //設置自己訂單的價格
-                                                        ref.child(choose1).child(choose2)
-                                                                .child("List").child(activity.user).child("total")
-                                                                .setValue(total);
-                                                        saveTotal = total;
-                                                        //設置總訂單價格
-                                                        int t = 0;
-                                                        t = Integer.parseInt(dataSnapshot.child(choose1).child(choose2).child("Total").getValue().toString());
-                                                        t += total;
-                                                        ref.child(choose1).child(choose2).child("Total").setValue(t);
+                                            int n1 =Integer.parseInt(
+                                                    dataSnapshot.child(choose1).child(choose2)
+                                                    .child("Total").getValue().toString());
+                                            if(!firstOD){
+                                                    n1+=total;
+                                                    saveTotal = total ;
+                                                    for(Object ob:checklist){
+                                                        orderList_next.add(ob);
                                                     }
-                                                }
-
-
-                                                }
-
-                                                ODcount=true;
+                                            firstOD = true;
                                             }else{
-                                                for (int i = 0; i < myorderList.size(); i++) {
-                                                    if (i == (myorderList.size() - 1)) {
-                                                        //設置自己訂單的價格
-                                                        ref.child(choose1).child(choose2)
-                                                                .child("List").child(activity.user).child("total")
-                                                                .setValue(total);
-
-                                                        //設置總訂單價格
-                                                        int t = 0;
-                                                        t = Integer.parseInt(dataSnapshot.child(choose1).child(choose2).child("Total").getValue().toString());
-                                                        t -= saveTotal;
-                                                        t += total;
-                                                        saveTotal =0;
-                                                        ref.child(choose1).child(choose2).child("Total").setValue(t);
+                                                n1 -= saveTotal;
+                                                n1 += saveTotal;
+                                                for(int j=0;j<checklist.size();j++){
+                                                    int onlineMuch=Integer.parseInt(
+                                                            dataSnapshot.child(choose1).child(choose2).child("List")
+                                                                    .child("All").child(nextList.get(j).toString())
+                                                                    .getValue().toString());
+                                                    if(!checklist.get(j).toString()
+                                                            .equals(orderList_next.get(j).toString())){
+                                                        if(checklist.get(j).equals(true)){
+                                                            onlineMuch+=1;
+                                                        }else{
+                                                            onlineMuch-=1;
+                                                        }
+                                                        ref.child(choose1).child(choose2).child("List")
+                                                                .child("All").child(nextList.get(j).toString())
+                                                                .setValue(onlineMuch);
                                                     }
                                                 }
 
                                             }
+                                            ref.child(choose1).child(choose2).child("List")
+                                                .child("Total").setValue(n1);
+
 
                                             //=====================================================================================//
 
-                                            //判斷是不是第一次點餐
-                                        for(int i=0;i<nextList.size();i++) {
-                                            int n = 0,choosen=0;
-                                            //取此選項現在的數量
 
-                                            n = Integer.parseInt(dataSnapshot
-                                                    .child(choose1).child(choose2)
-                                                    .child("List").child("All").child(nextList.get(i).toString())
-                                                    .getValue().toString());
-
-                                            if(checklist.get(i).equals(true)){
-                                                ref.child(choose1).child(choose2)
-                                                        .child("List").child(activity.user).child(nextList.get(i).toString())
-                                                        .setValue(1);
-                                                choosen =1;
-                                            }else{
-                                                ref.child(choose1).child(choose2)
-                                                        .child("List").child(activity.user).child(nextList.get(i).toString())
-                                                        .setValue(0);
-                                                choosen =0;
-                                            }
-                                            n+=choosen;
-                                            //設置此選項加點後的數量
-                                            ref.child(choose1).child(choose2)
-                                                    .child("List").child("All").child(nextList.get(i).toString())
-                                                    .setValue(n);
-                                                bl=true;
-                                                SetList();
-                                        }
-
-                                    }
+                                    }//onData
 
 
                                     @Override
