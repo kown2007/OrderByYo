@@ -175,6 +175,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
+
     }
 
 
@@ -260,6 +261,8 @@ public class MainActivity extends AppCompatActivity
     }
 
 
+
+
     //開啟新增點餐的Fragment
     public void ShowAddOrder(){
         ft = fm.beginTransaction();
@@ -293,7 +296,6 @@ public class MainActivity extends AppCompatActivity
         ft = fm.beginTransaction();
         ft.hide(nextOrderFragment).show(orderFragment).commit();
     }
-
 
 
 }

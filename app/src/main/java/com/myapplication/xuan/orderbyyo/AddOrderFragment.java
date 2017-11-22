@@ -27,6 +27,8 @@ public class AddOrderFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    MainActivity activity;
+
     private OnFragmentInteractionListener mListener;
 
     public AddOrderFragment() {
@@ -58,6 +60,9 @@ public class AddOrderFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        activity = ((MainActivity)getActivity());
+
     }
 
     @Override
