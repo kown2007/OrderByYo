@@ -3,6 +3,7 @@ package com.myapplication.xuan.orderbyyo;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -130,6 +131,8 @@ public class NextOrderFragment extends Fragment {
     @Override
     public void onResume() {
         SetList();
+        //取SharePrefrernces資料
+
         super.onResume();
     }
 
@@ -253,10 +256,12 @@ public class NextOrderFragment extends Fragment {
                                             n1 += total;
                                             saveTotal = 0;
                                             saveTotal = total;//儲存此單此次價格
+                                            activity.editor.putInt("SaveTotal",saveTotal);
                                             for (Object ob : checklist) {
                                                 orderList_next.add(ob);//儲存此單這次點餐結果
                                             }
                                             for (int j = 0; j < checklist.size(); j++) {
+                                                activity.editor.putString("Order"+j,orderList_next.get(j).toString());
                                                 int onlineMuch = Integer.parseInt(
                                                         dataSnapshot.child(choose1).child(choose2).child("List")
                                                                 .child("All").child(nextList.get(j).toString())
@@ -271,15 +276,19 @@ public class NextOrderFragment extends Fragment {
                                                         .child("All").child(nextList.get(j).toString())
                                                         .setValue(onlineMuch);
                                             }
+                                            activity.editor.commit();
 
                                             firstOD = true;//第一次點餐結束
                                         } else {
                                             //如果改單的話
+                                            saveTotal = activity.sharedPreferences.getInt("SaveTotal",0);
                                             n1 -= saveTotal;//總單扣掉上次單子的價格
                                             n1 += total;//總單加上這次單子的價格
                                             saveTotal = total;//儲存這次單子的價格
-
+                                            activity.editor.putInt("SaveTotal",saveTotal);
+                                            orderList_next.clear();
                                             for (int j = 0; j < checklist.size(); j++) {
+                                                orderList_next.add(activity.sharedPreferences.getString("Order"+j,null));
                                                 //取出總單每一項的數量
                                                 int onlineMuch = Integer.parseInt(
                                                         dataSnapshot.child(choose1).child(choose2).child("List")
@@ -303,9 +312,13 @@ public class NextOrderFragment extends Fragment {
                                                         }
                                             }
                                             orderList_next.clear();//清除上次點餐的結果
+                                            int chc=0;
                                             for (Object ob : checklist) {
                                                 orderList_next.add(ob);//存取這次點單的結果
+                                                activity.editor.putString("Order"+chc,orderList_next.get(chc).toString());
+                                                chc++;
                                             }
+                                            activity.editor.commit();
 
                                         }
                                         //設定判斷完後總單的價格
