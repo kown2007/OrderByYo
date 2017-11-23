@@ -16,6 +16,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckedTextView;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -50,16 +51,16 @@ public class NextOrderFragment extends Fragment {
 
     ///////////////////////////////////////////////////////////////
     private DatabaseReference ref;
-    private View view,vCheckOrder;
+    private View view,vCheckOrder,vAddItem;
     private ListView listView_next;
     private ArrayAdapter adapter_next;
-    private Button btnNextOK,btnNextC;
+    private Button btnNextOK,btnNextC,btnNextAddItem;
     public String choose1,choose2,OLG;
-    private List nextList,myorderList,priceList,checklist,orderList_next;
+    private List nextList,myorderList,priceList,checklist,orderList_next,addItemSaveList,chchList;
     private int total=0,saveTotal=0,saveChoose=0;
     private TextView tvTotal;
     MainActivity activity;
-    boolean bl,firstOD,ODcount;
+    boolean bl,firstOD,ODcount,bladd;
 
 
 
@@ -105,24 +106,30 @@ public class NextOrderFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        //路徑設定
         ref = FirebaseDatabase.getInstance().getReference("OrderList");
         view = inflater.inflate(R.layout.fragment_next_order, container, false);
         vCheckOrder = inflater.inflate(R.layout.orderchecklist,container,false);
+        vAddItem = inflater.inflate(R.layout.next_add_item,container,false);
+        //元件設定
         listView_next = (ListView)view.findViewById(R.id.listView_next);
         btnNextOK = (Button)view.findViewById(R.id.btnNextOK);
         btnNextC = (Button)view.findViewById(R.id.btnNextCancel);
+        btnNextAddItem = (Button)view.findViewById(R.id.btnNextAddItem);
 
-
+        //List設定
         nextList = new ArrayList();
         myorderList =new ArrayList();
         priceList = new ArrayList();
         checklist = new ArrayList();
         orderList_next = new ArrayList();
+        addItemSaveList = new ArrayList();
+        chchList = new ArrayList();
 
-
-
+        //按鈕監聽器設定
         btnNextOK.setOnClickListener(btnNextListener);
         btnNextC.setOnClickListener(btnNextListener);
+        btnNextAddItem.setOnClickListener(btnNextListener);
 
         return view;
     }
@@ -132,7 +139,6 @@ public class NextOrderFragment extends Fragment {
     public void onResume() {
         SetList();
         //取SharePrefrernces資料
-
         super.onResume();
     }
 
@@ -324,7 +330,7 @@ public class NextOrderFragment extends Fragment {
                                         //設定判斷完後總單的價格
                                         ref.child(choose1).child(choose2)
                                                 .child("Total").setValue(n1);
-
+                                        saveChoose = orderList_next.size();
 
                                         //=====================================================================================//
                                         bl=true;
@@ -346,6 +352,9 @@ public class NextOrderFragment extends Fragment {
                     break;
                 case R.id.btnNextCancel://如果是按取消鍵的話
                     ((MainActivity)getActivity()).CloseNextOrder();
+                    break;
+                case R.id.btnNextAddItem://如果按新增選項鈕
+                    BtnAddItem();
                     break;
             }
         }
@@ -372,6 +381,7 @@ public class NextOrderFragment extends Fragment {
                 myorderList.add(nextList.get(i));
                 total +=  Integer.parseInt(priceList.get(i).toString());
             }
+            Log.d("Price",""+priceList.get(i));
         }
     }
 
@@ -382,10 +392,10 @@ public class NextOrderFragment extends Fragment {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 nextList.clear();
                 checklist.clear();
+                priceList.clear();
                 total=0;
                 choose1 = activity.nextChoose1;
                 choose2 = activity.nextChoose2;
-                Log.d("AASSS", choose1 + "=" + choose2);
                 for(DataSnapshot ds:dataSnapshot.getChildren()){
                     if(ds.getKey().toString().equals(choose1)) {
                         for (DataSnapshot s : ds.child(choose2).getChildren()) {
@@ -396,6 +406,7 @@ public class NextOrderFragment extends Fragment {
                                 for(DataSnapshot ss:s.getChildren()) {
                                     nextList.add(ss.getKey().toString());
                                     priceList.add(ss.getValue());
+                                    Log.d("Price","2:"+ss.getValue());
                                 }
                             }
                         }
@@ -417,5 +428,144 @@ public class NextOrderFragment extends Fragment {
         });
     }
 
+    public void ListReset(){
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                nextList.clear();
+                checklist.clear();
+                total=0;
+                choose1 = activity.nextChoose1;
+                choose2 = activity.nextChoose2;
+                for(DataSnapshot ds:dataSnapshot.getChildren()){
+                    if(ds.getKey().toString().equals(choose1)) {
+                        for (DataSnapshot s : ds.child(choose2).getChildren()) {
+                            if(s.getKey().toString().equals("group")){
+                                OLG = s.getValue().toString();    //取出此訂單是哪個群的
+                            }else
+                            if(s.getKey().toString().equals("menu")){
+                                for(DataSnapshot ss:s.getChildren()) {
+                                    nextList.add(ss.getKey().toString());
+                                    priceList.add(ss.getValue());
+                                    Log.d("Price",""+ss.getValue());
+                                }
+                            }
+                        }
+                    }
+                }
+                adapter_next = new ArrayAdapter(getActivity(),
+                        android.R.layout.simple_list_item_checked,nextList);
+                listView_next.setAdapter(adapter_next);
+                listView_next.setOnItemClickListener(ODcheckListener);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+    public void BtnAddItem(){
+        final EditText etNAIN = (EditText)vAddItem.findViewById(R.id.etNtAdItName);
+        final EditText etNAIP = (EditText)vAddItem.findViewById(R.id.etNtAdItPrice);
+        AlertDialog.Builder builderA = new AlertDialog.Builder(getActivity());
+        builderA.setTitle("Order List(您的餐點)");
+        //
+        if (vAddItem.getParent() != null) {
+            ((ViewGroup) vAddItem.getParent()).removeView(vAddItem);
+        }
+        //
+        bladd =false;
+        builderA.setView(vAddItem);
+        builderA.setPositiveButton("取消", null);
+        builderA.setNegativeButton("確定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //若二者不為空白，新增選項到menu,List-ALL
+                if(!etNAIN.getText().toString().equals(null)&&
+                        !etNAIP.getText().toString().equals(null) ) {
+                    String etAdName = etNAIN.getText().toString();
+                    int etPrice = Integer.parseInt(etNAIP.getText().toString());
+                    ref.child(choose1).child(choose2).child("menu")
+                            .child(etAdName).setValue(etPrice);
+                    ref.child(choose1).child(choose2).child("List")
+                            .child("All").child(etAdName).setValue(0);
+                    etNAIN.setText("");
+                    etNAIP.setText("");
+                }
+                //即時監聽器
+                ref.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        //判斷有沒有點餐過
+                        for(DataSnapshot ds:dataSnapshot.child(choose1)
+                                .child(choose2).child("List").getChildren()){
+                            if (ds.getKey().toString().equals(activity.user)) {
+                                firstOD=true;
+                                ODcount =true;
+                            }else{
+                                firstOD = false;
+                                ODcount = false;
+                            }
+                        }
+                    if(!bladd) {
+                        //如果點餐過的話
+                        if (firstOD) {
+
+                            orderList_next.clear();
+                            Log.d("Sizez", "1:" + checklist.size());
+                            for (int o = 0; o < saveChoose; o++) {
+                                orderList_next.add(activity.sharedPreferences.getString("Order" + o, null));
+                            }
+                            Log.d("Sizez", "" + orderList_next.size());
+                            addItemSaveList.clear();
+
+                            for (int r = 0; r < orderList_next.size(); r++) {
+                                Log.d("Sizez", "Enter for" + r + " with " + orderList_next.get(r).toString());
+                                if (orderList_next.size() > 0) {
+                                    if (orderList_next.get(r).toString().equals("true")) {
+                                        addItemSaveList.add(nextList.get(r).toString());
+                                    }
+                                }
+                            }
+                            SetList();
+                            chchList.clear();
+                            for (Object oj : checklist) {
+                                chchList.add(false);
+                            }
+                            for (int k = 0; k < checklist.size(); k++) {
+                                if (addItemSaveList.size() > 0) {
+                                    for (int c = 0; c < addItemSaveList.size(); c++) {
+                                        if (nextList.get(k).toString().equals(addItemSaveList.get(c).toString())) {
+                                            chchList.set(k, orderList_next.get(c).toString());
+                                        }
+                                    }
+                                }
+                            }
+                            for (int x = 0; x < checklist.size(); x++) {
+                                activity.editor.putString("Order" + x, chchList.get(x).toString());
+                            }
+                            Log.d("Sizez", "" + checklist.size());
+                            activity.editor.commit();
+                            saveChoose = checklist.size();
+                        }
+                       // ListReset();
+                        bladd=true;
+                    }
+                        Total();
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });//ref
+            }//onClick
+        });//NegativeButton
+        builderA.show();
+
+
+    }
 
 }
