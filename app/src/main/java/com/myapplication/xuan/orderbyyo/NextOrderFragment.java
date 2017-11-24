@@ -406,7 +406,6 @@ public class NextOrderFragment extends Fragment {
                                 for(DataSnapshot ss:s.getChildren()) {
                                     nextList.add(ss.getKey().toString());
                                     priceList.add(ss.getValue());
-                                    Log.d("Price","2:"+ss.getValue());
                                 }
                             }
                         }
@@ -428,43 +427,6 @@ public class NextOrderFragment extends Fragment {
         });
     }
 
-    public void ListReset(){
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                nextList.clear();
-                checklist.clear();
-                total=0;
-                choose1 = activity.nextChoose1;
-                choose2 = activity.nextChoose2;
-                for(DataSnapshot ds:dataSnapshot.getChildren()){
-                    if(ds.getKey().toString().equals(choose1)) {
-                        for (DataSnapshot s : ds.child(choose2).getChildren()) {
-                            if(s.getKey().toString().equals("group")){
-                                OLG = s.getValue().toString();    //取出此訂單是哪個群的
-                            }else
-                            if(s.getKey().toString().equals("menu")){
-                                for(DataSnapshot ss:s.getChildren()) {
-                                    nextList.add(ss.getKey().toString());
-                                    priceList.add(ss.getValue());
-                                    Log.d("Price",""+ss.getValue());
-                                }
-                            }
-                        }
-                    }
-                }
-                adapter_next = new ArrayAdapter(getActivity(),
-                        android.R.layout.simple_list_item_checked,nextList);
-                listView_next.setAdapter(adapter_next);
-                listView_next.setOnItemClickListener(ODcheckListener);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-    }
     public void BtnAddItem(){
         final EditText etNAIN = (EditText)vAddItem.findViewById(R.id.etNtAdItName);
         final EditText etNAIP = (EditText)vAddItem.findViewById(R.id.etNtAdItPrice);
@@ -486,10 +448,13 @@ public class NextOrderFragment extends Fragment {
                         !etNAIP.getText().toString().equals(null) ) {
                     String etAdName = etNAIN.getText().toString();
                     int etPrice = Integer.parseInt(etNAIP.getText().toString());
+                    //新增menu的選項
                     ref.child(choose1).child(choose2).child("menu")
                             .child(etAdName).setValue(etPrice);
+                    //新增All的選項
                     ref.child(choose1).child(choose2).child("List")
                             .child("All").child(etAdName).setValue(0);
+                    //清空兩個欄位
                     etNAIN.setText("");
                     etNAIP.setText("");
                 }
@@ -511,28 +476,27 @@ public class NextOrderFragment extends Fragment {
                     if(!bladd) {
                         //如果點餐過的話
                         if (firstOD) {
-
+                            //取出暫存的以點過的菜單對應
                             orderList_next.clear();
-                            Log.d("Sizez", "1:" + checklist.size());
                             for (int o = 0; o < saveChoose; o++) {
                                 orderList_next.add(activity.sharedPreferences.getString("Order" + o, null));
                             }
-                            Log.d("Sizez", "" + orderList_next.size());
+                            //取出以點菜單的項目名稱
                             addItemSaveList.clear();
-
                             for (int r = 0; r < orderList_next.size(); r++) {
-                                Log.d("Sizez", "Enter for" + r + " with " + orderList_next.get(r).toString());
                                 if (orderList_next.size() > 0) {
                                     if (orderList_next.get(r).toString().equals("true")) {
                                         addItemSaveList.add(nextList.get(r).toString());
                                     }
                                 }
                             }
-                            SetList();
-                            chchList.clear();
+                            SetList();//重新設定選單
+                            chchList.clear();//轉接的List清除
                             for (Object oj : checklist) {
-                                chchList.add(false);
+                                chchList.add(false);//全部放入false
                             }
+                            //將舊的點單的名字 對應 現在menu的位置
+                            //並將對應的位置存入舊的選取紀錄
                             for (int k = 0; k < checklist.size(); k++) {
                                 if (addItemSaveList.size() > 0) {
                                     for (int c = 0; c < addItemSaveList.size(); c++) {
@@ -542,17 +506,18 @@ public class NextOrderFragment extends Fragment {
                                     }
                                 }
                             }
+                            //將更新完的選取紀錄儲存
                             for (int x = 0; x < checklist.size(); x++) {
                                 activity.editor.putString("Order" + x, chchList.get(x).toString());
                             }
-                            Log.d("Sizez", "" + checklist.size());
-                            activity.editor.commit();
-                            saveChoose = checklist.size();
+
+                            activity.editor.commit();//sharedPreferences儲存資料
+                            saveChoose = checklist.size();//這次的size儲存
                         }
                        // ListReset();
                         bladd=true;
                     }
-                        Total();
+                        Total();//價格List重新設定
 
                     }
 
