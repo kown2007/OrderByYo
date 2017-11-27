@@ -248,8 +248,12 @@ public class NextOrderFragment extends Fragment {
                                         ice = nextDrinkAdapter.getIce();
                                         for (Object ob : nextList) {
                                             if(choose1.equals("Drink")){
-                                                nextList.set(count,
-                                                        nextList.get(count)+","+suger.get(count)+","+ice.get(count));
+                                                for(int i=0;i<myorderList.size();i++) {
+                                                    if(ob.toString()
+                                                            .equals(myorderList.get(i).toString())){
+                                                    ob = ob + "," + suger.get(i) + "," + ice.get(i);
+                                                    }
+                                                }
                                             }
                                             if (checklist.get(count).equals(false)) {
                                                 ref.child(choose1).child(choose2).child("List")

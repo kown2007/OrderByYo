@@ -1,6 +1,7 @@
 package com.myapplication.xuan.orderbyyo;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,10 +23,12 @@ public class NextDrinkAdapter extends BaseAdapter {
     LayoutInflater layoutInflater;
     public static List list,suger,ice;
     Context context;
+
     public NextDrinkAdapter(Context c, List list){
         layoutInflater = LayoutInflater.from(c);
         this.context =c;
         this.list = list;
+
     }
 
     @Override
@@ -44,7 +47,7 @@ public class NextDrinkAdapter extends BaseAdapter {
     }
 
     @Override
-    public View getView(int position, View view, ViewGroup parent) {
+    public View getView(final int position, View view, ViewGroup parent) {
         view = layoutInflater.inflate(R.layout.drink_list,null);
         suger = new ArrayList();
         ice = new ArrayList();
@@ -59,38 +62,36 @@ public class NextDrinkAdapter extends BaseAdapter {
         ArrayAdapter adapter_Suger = ArrayAdapter.createFromResource(context,
                 R.array.suger,android.R.layout.simple_spinner_dropdown_item);
         spSuger.setAdapter(adapter_Suger);
-        spSuger.setOnItemSelectedListener(sugerListener);
+        spSuger.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pn, long id) {
+                suger.set(position,parent.getSelectedItem().toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         Spinner spIce = (Spinner) view.findViewById(R.id.spIce);
         ArrayAdapter adapter_Ice = ArrayAdapter.createFromResource(context,
                 R.array.Ice,android.R.layout.simple_spinner_dropdown_item);
         spIce.setAdapter(adapter_Ice);
-        spIce.setOnItemSelectedListener(iceListener);
+        spIce.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pn, long id) {
+                ice.set(position,parent.getSelectedItem().toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
         return view;
     }
 
-    Spinner.OnItemSelectedListener sugerListener = new Spinner.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            suger.set(position,parent.getSelectedItem().toString());
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-    };
-    Spinner.OnItemSelectedListener iceListener = new Spinner.OnItemSelectedListener() {
-        @Override
-        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-            ice.set(position,parent.getSelectedItem().toString());
-        }
-
-        @Override
-        public void onNothingSelected(AdapterView<?> parent) {
-
-        }
-    };
 
     public List getSuger(){
         return  suger;
