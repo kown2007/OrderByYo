@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -51,11 +52,12 @@ public class NextOrderFragment extends Fragment {
 
     ///////////////////////////////////////////////////////////////
     private DatabaseReference ref;
-    private View view,vCheckOrder,vAddItem;
+    private View view,vCheckOrder,vAddItem,vSP;
     private ListView listView_next;
     private ArrayAdapter adapter_next;
     private Button btnNextOK,btnNextC,btnNextAddItem;
-    public String choose1,choose2,OLG;
+    public String choose1="",choose2="",OLG;
+    List suger,ice,save;
     private List nextList,myorderList,priceList,checklist,orderList_next,addItemSaveList,chchList;
     private int total=0,saveTotal=0,saveChoose=0;
     private TextView tvTotal;
@@ -111,6 +113,7 @@ public class NextOrderFragment extends Fragment {
         view = inflater.inflate(R.layout.fragment_next_order, container, false);
         vCheckOrder = inflater.inflate(R.layout.orderchecklist,container,false);
         vAddItem = inflater.inflate(R.layout.next_add_item,container,false);
+        vSP = inflater.inflate(R.layout.drink_list,container,false);
         //元件設定
         listView_next = (ListView)view.findViewById(R.id.listView_next);
         btnNextOK = (Button)view.findViewById(R.id.btnNextOK);
@@ -125,6 +128,8 @@ public class NextOrderFragment extends Fragment {
         orderList_next = new ArrayList();
         addItemSaveList = new ArrayList();
         chchList = new ArrayList();
+        suger = new ArrayList();
+        ice = new ArrayList();
 
         //按鈕監聽器設定
         btnNextOK.setOnClickListener(btnNextListener);
@@ -203,14 +208,20 @@ public class NextOrderFragment extends Fragment {
                         });
                         builder0.show();
                     }else {
-
+                        final NextDrinkAdapter nextDrinkAdapter = new NextDrinkAdapter(getActivity(),myorderList);
                         ListView lvCO =
                                 (ListView) vCheckOrder.findViewById(R.id.lv_CheckOrder);
                         tvTotal = (TextView)vCheckOrder.findViewById(R.id.tvNextTotal);
                         tvTotal.setText("Total:"+total+"$");
-                        final ArrayAdapter adapterCO =
-                                new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, myorderList);
-                        lvCO.setAdapter(adapterCO);
+                        //判斷是點哪類而設定Adapter
+                        if(choose1.toString().equals("Food")){
+                            ArrayAdapter adapterCO =
+                                    new ArrayAdapter(getActivity(), android.R.layout.simple_list_item_1, myorderList);
+                            lvCO.setAdapter(adapterCO);
+                        }else if(choose1.toString().equals("Drink")){
+
+                            lvCO.setAdapter(nextDrinkAdapter);
+                        }
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                         builder.setTitle("Order List(您的餐點)");
@@ -228,22 +239,18 @@ public class NextOrderFragment extends Fragment {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         SetList();
-                                        for(DataSnapshot ds:dataSnapshot.child(choose1)
-                                                .child(choose2).child("List").getChildren()){
-                                            if (ds.getKey().toString().equals(activity.user)) {
-                                                firstOD=true;
-                                                ODcount =true;
-                                            }else{
-                                                firstOD = false;
-                                                ODcount = false;
-                                            }
-                                        }
                                     if(!bl) {
-                                        //建立點單
+                                        //建立/建立點單
                                         ref.child(choose1).child(choose2).child("List")
                                                 .child(activity.user).child("total").setValue(total);
                                         int count = 0;
+                                        suger = nextDrinkAdapter.getSuger();
+                                        ice = nextDrinkAdapter.getIce();
                                         for (Object ob : nextList) {
+                                            if(choose1.equals("Drink")){
+                                                nextList.set(count,
+                                                        nextList.get(count)+","+suger.get(count)+","+ice.get(count));
+                                            }
                                             if (checklist.get(count).equals(false)) {
                                                 ref.child(choose1).child(choose2).child("List")
                                                         .child(activity.user).child(ob.toString()).setValue(0);
@@ -253,85 +260,6 @@ public class NextOrderFragment extends Fragment {
                                             }
                                             count++;
                                         }
-                                        //取總單現在的總價格
-                                        int n1 = Integer.parseInt(
-                                                dataSnapshot.child(choose1).child(choose2)
-                                                        .child("Total").getValue().toString());
-                                        //如果是第一次點餐的話
-                                        if (!firstOD) {
-                                            n1 += total;
-                                            saveTotal = 0;
-                                            saveTotal = total;//儲存此單此次價格
-                                            activity.editor.putInt("SaveTotal",saveTotal);
-                                            for (Object ob : checklist) {
-                                                orderList_next.add(ob);//儲存此單這次點餐結果
-                                            }
-                                            for (int j = 0; j < checklist.size(); j++) {
-                                                activity.editor.putString("Order"+j,orderList_next.get(j).toString());
-                                                int onlineMuch = Integer.parseInt(
-                                                        dataSnapshot.child(choose1).child(choose2).child("List")
-                                                                .child("All").child(nextList.get(j).toString())
-                                                                .getValue().toString());
-                                                for(Object oo:myorderList){
-                                                    if(nextList.get(j).toString().equals(oo.toString())){
-                                                        onlineMuch ++;//講點選餐點加到統計單上的數量
-                                                    }
-                                                }
-                                                //設定點餐後統計單
-                                                ref.child(choose1).child(choose2).child("List")
-                                                        .child("All").child(nextList.get(j).toString())
-                                                        .setValue(onlineMuch);
-                                            }
-                                            activity.editor.commit();
-
-                                            firstOD = true;//第一次點餐結束
-                                        } else {
-                                            //如果改單的話
-                                            saveTotal = activity.sharedPreferences.getInt("SaveTotal",0);
-                                            n1 -= saveTotal;//總單扣掉上次單子的價格
-                                            n1 += total;//總單加上這次單子的價格
-                                            saveTotal = total;//儲存這次單子的價格
-                                            activity.editor.putInt("SaveTotal",saveTotal);
-                                            orderList_next.clear();
-                                            for (int j = 0; j < checklist.size(); j++) {
-                                                orderList_next.add(activity.sharedPreferences.getString("Order"+j,null));
-                                                //取出總單每一項的數量
-                                                int onlineMuch = Integer.parseInt(
-                                                        dataSnapshot.child(choose1).child(choose2).child("List")
-                                                                .child("All").child(nextList.get(j).toString())
-                                                                .getValue().toString());
-                                                //判斷是否與上次點餐結果相同
-                                                        if(orderList_next.size()>0) {
-                                                            if (!checklist.get(j).toString()
-                                                                    .equals(orderList_next.get(j).toString())) {
-                                                                if (checklist.get(j).equals(true)) {
-                                                                    onlineMuch += 1;//如果從沒點變成有點(餐)，總數量加一
-                                                                } else {
-                                                                    onlineMuch -= 1;//如果從有點改成沒點(餐)，總數量減一
-                                                                }
-                                                                //設定判斷完後總單此項的數量
-                                                                ref.child(choose1).child(choose2).child("List")
-                                                                        .child("All").child(nextList.get(j).toString())
-                                                                        .setValue(onlineMuch);
-                                                                }
-
-                                                        }
-                                            }
-                                            orderList_next.clear();//清除上次點餐的結果
-                                            int chc=0;
-                                            for (Object ob : checklist) {
-                                                orderList_next.add(ob);//存取這次點單的結果
-                                                activity.editor.putString("Order"+chc,orderList_next.get(chc).toString());
-                                                chc++;
-                                            }
-                                            activity.editor.commit();
-
-                                        }
-                                        //設定判斷完後總單的價格
-                                        ref.child(choose1).child(choose2)
-                                                .child("Total").setValue(n1);
-                                        saveChoose = orderList_next.size();
-
                                         //=====================================================================================//
                                         bl=true;
                                      }//bl
@@ -381,7 +309,6 @@ public class NextOrderFragment extends Fragment {
                 myorderList.add(nextList.get(i));
                 total +=  Integer.parseInt(priceList.get(i).toString());
             }
-            Log.d("Price",""+priceList.get(i));
         }
     }
 
@@ -394,8 +321,8 @@ public class NextOrderFragment extends Fragment {
                 checklist.clear();
                 priceList.clear();
                 total=0;
-                choose1 = activity.nextChoose1;
-                choose2 = activity.nextChoose2;
+                    choose1 = activity.nextChoose1;
+                    choose2 = activity.nextChoose2;
                 for(DataSnapshot ds:dataSnapshot.getChildren()){
                     if(ds.getKey().toString().equals(choose1)) {
                         for (DataSnapshot s : ds.child(choose2).getChildren()) {
@@ -414,10 +341,12 @@ public class NextOrderFragment extends Fragment {
                 for(Object ob:nextList){
                     checklist.add(false);
                 }
-                adapter_next = new ArrayAdapter(getActivity(),
-                        android.R.layout.simple_list_item_checked,nextList);
-                listView_next.setAdapter(adapter_next);
-                listView_next.setOnItemClickListener(ODcheckListener);
+
+                    adapter_next = new ArrayAdapter(getActivity(),
+                            android.R.layout.simple_list_item_checked, nextList);
+                    listView_next.setAdapter(adapter_next);
+                    listView_next.setOnItemClickListener(ODcheckListener);
+
             }
 
             @Override
@@ -529,8 +458,6 @@ public class NextOrderFragment extends Fragment {
             }//onClick
         });//NegativeButton
         builderA.show();
-
-
     }
 
 }

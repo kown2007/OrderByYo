@@ -8,4 +8,23 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    
+    <string-array name="suger">
+        <item>正常(10)</item>
+        <item>少糖(8)</item>
+        <item>半糖(5)</item>
+        <item>微糖(3)</item>
+        <item>無糖(0)</item>
+    </string-array>
+
+    <string-array name="Ice">
+        <item>正常</item>
+        <item>少冰</item>
+        <item>微冰</item>
+        <item>去冰</item>
+        <item>常溫</item>
+        <item>溫</item>
+        <item>熱</item>
+        <item>多冰</item>
+    </string-array>
 </resources>
