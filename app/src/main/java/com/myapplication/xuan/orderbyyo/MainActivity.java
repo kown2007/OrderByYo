@@ -234,7 +234,8 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_home) {
             // Handle the camera action
-            ft.hide(orderFragment)
+            ft.show(homeFragment)
+                    .hide(orderFragment)
                     .hide(groupFragment)
                     .hide(addOrderFragment)
                     .hide(groupAddFragment)
@@ -265,6 +266,7 @@ public class MainActivity extends AppCompatActivity
                             .hide(groupFragment)
                             .hide(addOrderFragment)
                             .hide(groupFragment)
+                            .hide(homeFragment)
                             .commit();
                 }
             });
