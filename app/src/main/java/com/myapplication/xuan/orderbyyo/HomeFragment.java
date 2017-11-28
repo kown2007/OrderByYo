@@ -170,14 +170,18 @@ public class HomeFragment extends Fragment {
                     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                         Log.d("nnnnn",""+position);
                         selectvieworder.clear();
+                        int n=0;
                         for(DataSnapshot d:dataSnapshot.getChildren()){//d:Food,Drink
                             for(DataSnapshot d2:d.getChildren()){//d2:店家名稱
                                 if(d2.getKey().toString().equals(myorderall.get(position).toString())){
                                     for(DataSnapshot d3:d2.child("List").child(activity.user).getChildren()){
-                                        selectvieworder.add(d3.getKey().toString());
+                                        selectvieworder.add(d3.getKey().toString()+":"+
+                                        d3.getValue());
+
                                     }
                                 }
                             }
+                            n++;
                         }
                         adapter_bu = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,selectvieworder);
                         ListView listView_bu =(ListView) home.findViewById(R.id.listView_homeSelect);
