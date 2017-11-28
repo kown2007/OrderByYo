@@ -10,6 +10,12 @@
     android:orientation="vertical">
 
     <fragment
+        android:id="@+id/fragment_Home"
+        android:name="com.myapplication.xuan.orderbyyo.HomeFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <fragment
         android:id="@+id/fragment_Order"
         android:name="com.myapplication.xuan.orderbyyo.OrderFragment"
         android:layout_width="match_parent"
@@ -41,5 +47,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_weight="1" />
+
+
+
 
 </LinearLayout>

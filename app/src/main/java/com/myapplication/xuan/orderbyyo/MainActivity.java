@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -20,6 +21,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -43,16 +48,18 @@ public class MainActivity extends AppCompatActivity
     AddOrderFragment addOrderFragment;
     GroupAddFragment groupAddFragment;
     NextOrderFragment nextOrderFragment;
+    HomeFragment homeFragment;
 
     DatabaseReference ref;
 
     Boolean blSignIn;
-    Boolean blGroup=false;
     String user;
     public String nextChoose1,nextChoose2;
     public List mygroup;
     TextView navname,navtitle;
     View header;
+
+
 
 
 
@@ -72,9 +79,12 @@ public class MainActivity extends AppCompatActivity
         addOrderFragment = (AddOrderFragment) fm.findFragmentById(R.id.fragment_AddOrder);
         groupAddFragment = (GroupAddFragment) fm.findFragmentById(R.id.fragment_GroupAdd);
         nextOrderFragment = (NextOrderFragment) fm.findFragmentById(R.id.fragment_NextOrder);
+        homeFragment = (HomeFragment) fm.findFragmentById(R.id.fragment_Home);
 
 
         mygroup = new ArrayList();
+
+
 
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -99,6 +109,9 @@ public class MainActivity extends AppCompatActivity
         header = navigationView.inflateHeaderView(R.layout.nav_header_main);
         navname = (TextView) header.findViewById(R.id.nav_tvName);
         navtitle = (TextView) header.findViewById(R.id.nav_tvTitle);
+
+
+
 
     }
 
@@ -162,6 +175,8 @@ public class MainActivity extends AppCompatActivity
                 .hide(groupAddFragment)
                 .hide(nextOrderFragment)
                 .commit();
+
+        //
 
     }
 
@@ -227,11 +242,11 @@ public class MainActivity extends AppCompatActivity
                     .commit();
 
         } else if (id == R.id.nav_order) {
-            ft.show(orderFragment).hide(groupFragment).commit();
+            ft.show(orderFragment).hide(groupFragment).hide(homeFragment).commit();
             setTitle("Order System");
             orderFragment.getMyGroupList();
         } else if (id == R.id.nav_group) {
-            ft.show(groupFragment).hide(orderFragment).commit();
+            ft.show(groupFragment).hide(orderFragment).hide(homeFragment).commit();
             setTitle("Group Item");
 
         } else if (id == R.id.nav_logout) {
@@ -296,6 +311,9 @@ public class MainActivity extends AppCompatActivity
         ft = fm.beginTransaction();
         ft.hide(nextOrderFragment).show(orderFragment).commit();
     }
+
+
+
 
 
 }

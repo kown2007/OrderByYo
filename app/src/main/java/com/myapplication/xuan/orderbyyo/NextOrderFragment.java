@@ -239,31 +239,37 @@ public class NextOrderFragment extends Fragment {
                                     @Override
                                     public void onDataChange(DataSnapshot dataSnapshot) {
                                         SetList();
-                                    if(!bl) {
-                                        //建立/建立點單
-                                        ref.child(choose1).child(choose2).child("List")
-                                                .child(activity.user).child("total").setValue(total);
-                                        int count = 0;
-                                        suger = nextDrinkAdapter.getSuger();
-                                        ice = nextDrinkAdapter.getIce();
-                                        for (Object ob : nextList) {
-                                            if(choose1.equals("Drink")){
-                                                for(int i=0;i<myorderList.size();i++) {
-                                                    if(ob.toString()
-                                                            .equals(myorderList.get(i).toString())){
-                                                    ob = ob + "," + suger.get(i) + "," + ice.get(i);
+                                        if (!bl) {
+                                            //建立/建立點單
+                                            //int count = 0;
+                                            boolean isIn=false;
+                                            suger = nextDrinkAdapter.getSuger();
+                                            ice = nextDrinkAdapter.getIce();
+                                            for(int q=0;q<myorderList.size();q++){
+                                                if(choose1.equals("Drink")){
+                                                    myorderList.set(q,
+                                                            myorderList.get(q)+ "," + suger.get(q) + "," + ice.get(q));
+                                                }
+                                                ref.child(choose1).child(choose2).child("List")
+                                                        .child(activity.user).child(myorderList.get(q).toString()).setValue(1);
+                                            }
+
+                                            for (DataSnapshot ds : dataSnapshot.child(choose1).child(choose2)
+                                                    .child("List").child(activity.user).getChildren()) {
+                                                boolean isTrue = false;
+                                                for (int i = 0; i < myorderList.size(); i++) {
+                                                    if (ds.getKey().toString().equals(myorderList.get(i).toString())) {
+                                                        isTrue = true;
                                                     }
                                                 }
-                                            }
-                                            if (checklist.get(count).equals(false)) {
-                                                ref.child(choose1).child(choose2).child("List")
-                                                        .child(activity.user).child(ob.toString()).setValue(0);
-                                            } else if (checklist.get(count).equals(true)) {
-                                                ref.child(choose1).child(choose2).child("List")
-                                                        .child(activity.user).child(ob.toString()).setValue(1);
-                                            }
-                                            count++;
+                                                if (!isTrue) {
+                                                    ref.child(choose1).child(choose2).child("List")
+                                                            .child(activity.user).child(ds.getKey().toString()).removeValue();
+                                                }
                                         }
+
+                                            ref.child(choose1).child(choose2).child("List")
+                                                    .child(activity.user).child("total").setValue(total);
                                         //=====================================================================================//
                                         bl=true;
                                      }//bl
