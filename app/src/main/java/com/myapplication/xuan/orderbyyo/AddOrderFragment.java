@@ -173,6 +173,8 @@ public class AddOrderFragment extends Fragment {
                         public void onClick(DialogInterface dialog, int which) {
                             ref.child(kind).child(title_name.getText().toString())
                                     .child("group").setValue(group);
+                            ref.child(kind).child(title_name.getText().toString())
+                                    .child("boss").setValue(activity.user);
                             for (int i = 0; i < namelist.size(); i++) {
                                 ref.child(kind).child(title_name.getText().toString())
                                         .child("menu")
