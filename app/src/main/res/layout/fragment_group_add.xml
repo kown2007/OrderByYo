@@ -1,10 +1,77 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.myapplication.xuan.orderbyyo.GroupAddFragment">
 
     <!-- TODO: Update blank fragment layout -->
 
+
+    <TextView
+        android:id="@+id/tvAddGroup_Name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:gravity="center"
+        android:textSize="25sp"
+        android:textColor="#000"
+        android:text="群組名稱(Group Name)" />
+
+    <EditText
+        android:id="@+id/etAddGroup_Name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="bottom"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text=""
+        android:hint="Enter Group Name"/>
+
+    <TextView
+        android:id="@+id/tvAddGroup_Password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:gravity="center"
+        android:textSize="25sp"
+        android:textColor="#000"
+        android:text="群組密碼(Group Password)" />
+
+    <EditText
+        android:id="@+id/etAddGroup_Password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="bottom"
+        android:ems="10"
+        android:inputType="number"
+        android:text=""
+        android:hint="Enter Password"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnAddGroup_OK"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="clickOK"
+            android:text="確定(OK)" />
+
+        <Button
+            android:id="@+id/btnAddGroup_No"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:onClick="clickNO"
+            android:text="取消(Cancel)" />
+    </LinearLayout>
 
 </LinearLayout>

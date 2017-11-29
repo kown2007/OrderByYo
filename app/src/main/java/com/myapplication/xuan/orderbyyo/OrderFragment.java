@@ -1,8 +1,6 @@
 package com.myapplication.xuan.orderbyyo;
 
-import android.app.Activity;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
@@ -105,7 +103,7 @@ public class OrderFragment extends Fragment {
         // Inflate the layout for this fragment
 
         view = inflater.inflate(R.layout.fragment_order, container, false);
-        setHasOptionsMenu(true);
+        //setHasOptionsMenu(true);
 
         ref = FirebaseDatabase.getInstance().getReference("OrderList");
         orderFood = (TextView)view.findViewById(R.id.tvOrderFood);
@@ -146,7 +144,7 @@ public class OrderFragment extends Fragment {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_mydata) {
             return true;
         }else
         if (id == R.id.action_add) {
@@ -211,8 +209,6 @@ public class OrderFragment extends Fragment {
                                 if(s.child("group").getValue().toString().equals(ob.toString())) {
                                     foodlist.add(s.getKey().toString());
                                 }
-                                Log.d("GGGGG",s.child("group").getValue().toString());
-                                Log.d("GGGGG","=="+ob.toString());
                             }
                         }
 

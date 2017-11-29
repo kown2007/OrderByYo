@@ -1,14 +1,22 @@
 package com.myapplication.xuan.orderbyyo;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.security.acl.Group;
 
@@ -32,7 +40,10 @@ public class GroupAddFragment extends Fragment {
     private String mParam2;
     MainActivity activity;
     ////////////////////////////////////////////////////
-
+    EditText etGroupAdd_name,etGroupAdd_Password;
+    String newgpName,newgpPassword;
+    Button btnOK,btnNO;
+    DatabaseReference ref,mref;
 
     ///////////////////////////////////////////
 
@@ -78,7 +89,18 @@ public class GroupAddFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_group_add, container, false);
+        View v =inflater.inflate(R.layout.fragment_group_add, container, false);
+        etGroupAdd_name = (EditText)v.findViewById(R.id.etAddGroup_Name);
+        etGroupAdd_Password = (EditText)v.findViewById(R.id.etAddGroup_Password);
+        btnOK = (Button)v.findViewById(R.id.btnAddGroup_OK);
+        btnNO = (Button)v.findViewById(R.id.btnAddGroup_No);
+
+        ref = FirebaseDatabase.getInstance().getReference("Group");
+        mref = FirebaseDatabase.getInstance().getReference("Users");
+
+        btnOK.setOnClickListener(btnListener);
+        btnNO.setOnClickListener(btnListener);
+        return v;
     }
 
 
@@ -121,4 +143,32 @@ public class GroupAddFragment extends Fragment {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
     }
+
+    View.OnClickListener btnListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            newgpName = etGroupAdd_name.getText().toString();
+            newgpPassword = etGroupAdd_Password.getText().toString();
+            switch (v.getId()){
+                case R.id.btnAddGroup_OK:
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("確定新增群組?");
+                    builder.setMessage("群組名稱 : "+newgpName+"\n"+"密碼 : "+newgpPassword);
+                    builder.setPositiveButton("取消", null);
+                    builder.setNegativeButton("確定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ref.child(newgpName).child("password").setValue(newgpPassword);//新增到全部群組
+                            mref.child(activity.user).child("group").child(newgpName).setValue(newgpName);//把自己加入群組
+                            activity.CloseAddGroup();
+                        }
+                    });
+                    builder.show();
+                    break;
+                case R.id.btnAddGroup_No:
+                    activity.CloseAddGroup();
+                    break;
+            }
+        }
+    };
 }

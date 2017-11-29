@@ -37,15 +37,15 @@
     <fragment
         android:id="@+id/fragment_GroupAdd"
         android:name="com.myapplication.xuan.orderbyyo.GroupAddFragment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_weight="1" />
 
     <fragment
         android:id="@+id/fragment_NextOrder"
         android:name="com.myapplication.xuan.orderbyyo.NextOrderFragment"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:layout_weight="1" />
 
 
