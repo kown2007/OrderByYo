@@ -128,38 +128,7 @@ public class MainActivity extends AppCompatActivity
             signIn.setClass(MainActivity.this,SignIn.class);
             startActivity(signIn);
         }
-
-        //取自己有的群組
-        user = sharedPreferences.getString("User",null);
-        ref = FirebaseDatabase.getInstance().getReference("Users");
-        ref.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                mygroup.clear();
-                for(DataSnapshot ds:dataSnapshot.getChildren()){
-                    if(ds.getKey().toString().equals(user)) {
-                        for(DataSnapshot s: ds.child("group").getChildren()){
-                            mygroup.add(s.getKey().toString());
-                        }
-                    }
-                }
-
-                //設置側選單群組列
-                if(mygroup.size()>0) {
-                    navtitle.setText("Group:" + mygroup.toString());
-                }else{
-                    navtitle.setText("您尚未加入任何群組!");
-                }
-
-
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
+        SearchGroup();
 
 
         //設置側選單使用者名稱
@@ -314,7 +283,40 @@ public class MainActivity extends AppCompatActivity
         ft.hide(nextOrderFragment).show(orderFragment).commit();
     }
 
+    public void SearchGroup(){
+        //取自己有的群組
+        user = sharedPreferences.getString("User",null);
+        ref = FirebaseDatabase.getInstance().getReference("Users");
+        ref.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                mygroup.clear();
+                for(DataSnapshot ds:dataSnapshot.getChildren()){
+                    if(ds.getKey().toString().equals(user)) {
+                        for(DataSnapshot s: ds.child("group").getChildren()){
+                            mygroup.add(s.getKey().toString());
+                        }
+                    }
+                }
 
+                //設置側選單群組列
+                if(mygroup.size()>0) {
+                    navtitle.setText("Group:" + mygroup.toString());
+                }else{
+                    navtitle.setText("您尚未加入任何群組!");
+                }
+
+
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
 
 
 

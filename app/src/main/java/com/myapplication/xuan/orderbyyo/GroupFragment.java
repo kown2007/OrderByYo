@@ -68,6 +68,7 @@ public class GroupFragment extends Fragment {
     private SharedPreferences sharedPreferences;
     private Button btnAddGroup;
     private EditText etPC;
+    MainActivity activity;
 
 
 
@@ -124,6 +125,8 @@ public class GroupFragment extends Fragment {
         grouplist = new ArrayList();
         mygroup = new ArrayList();
         etPC = (EditText) vpasscheck.findViewById(R.id.etCheckPassword);
+
+        activity = (MainActivity)getActivity();
 
 
 
@@ -235,8 +238,31 @@ public class GroupFragment extends Fragment {
                     listView.setAdapter(adapter);
                     listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
-                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            Log.d("MMM",""+mygroup.get(position));
+                        public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                            AlertDialog.Builder buout = new AlertDialog.Builder(getActivity());
+                            buout.setTitle("要退出群組嗎?");
+                            buout.setMessage("退出後將無法再訂此群組的單哦!");
+                            buout.setPositiveButton("No",null);
+                            buout.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    AlertDialog.Builder buout2 = new AlertDialog.Builder(getActivity());
+                                    buout2.setTitle("確定退出群組?");
+                                    buout2.setPositiveButton("No",null);
+                                    buout2.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            mref.child(activity.user).child("group").child(mygroup.get(position).toString())
+                                                    .removeValue();
+                                            activity.SearchGroup();
+                                            adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,mygroup);
+                                            listView.setAdapter(adapter);
+                                        }
+                                    });
+                                    buout2.show();
+                                }
+                            });
+                            buout.show();
                         }
                     });
                     break;
@@ -313,4 +339,7 @@ public class GroupFragment extends Fragment {
         }
     };
 
+    public void setMyGPlist(){
+
+    }
 }
