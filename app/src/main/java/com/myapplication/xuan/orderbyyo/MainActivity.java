@@ -245,6 +245,7 @@ public class MainActivity extends AppCompatActivity
     public void ShowAddOrder(){
         ft = fm.beginTransaction();
         ft.hide(orderFragment).show(addOrderFragment).commit();
+        addOrderFragment.setSpinner();
     }
     //關閉新增點餐的Fragment
     public void CloseAddOrder(){

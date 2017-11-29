@@ -27,4 +27,10 @@
         <item>熱</item>
         <item>多冰</item>
     </string-array>
+
+    <string-array name="Kind">
+        <item>便當(Food)</item>
+        <item>飲料(Drink)</item>
+    </string-array>
+
 </resources>

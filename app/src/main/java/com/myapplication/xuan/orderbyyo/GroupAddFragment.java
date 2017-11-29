@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -149,25 +150,31 @@ public class GroupAddFragment extends Fragment {
         public void onClick(View v) {
             newgpName = etGroupAdd_name.getText().toString();
             newgpPassword = etGroupAdd_Password.getText().toString();
-            switch (v.getId()){
-                case R.id.btnAddGroup_OK:
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle("確定新增群組?");
-                    builder.setMessage("群組名稱 : "+newgpName+"\n"+"密碼 : "+newgpPassword);
-                    builder.setPositiveButton("取消", null);
-                    builder.setNegativeButton("確定", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            ref.child(newgpName).child("password").setValue(newgpPassword);//新增到全部群組
-                            mref.child(activity.user).child("group").child(newgpName).setValue(newgpName);//把自己加入群組
-                            activity.CloseAddGroup();
+
+                switch (v.getId()) {
+                    case R.id.btnAddGroup_OK:
+                        if(newgpName.equals("")||newgpPassword.equals("")){
+                            Toast.makeText(getActivity(),"欄位請勿空白!\n Don't blank the field!",Toast.LENGTH_SHORT).show();
+                        }else {
+                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                            builder.setTitle("確定新增群組?");
+                            builder.setMessage("群組名稱 : " + newgpName + "\n" + "密碼 : " + newgpPassword);
+                            builder.setPositiveButton("取消", null);
+                            builder.setNegativeButton("確定", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    ref.child(newgpName).child("password").setValue(newgpPassword);//新增到全部群組
+                                    mref.child(activity.user).child("group").child(newgpName).setValue(newgpName);//把自己加入群組
+                                    activity.CloseAddGroup();
+                                }
+                            });
+                            builder.show();
                         }
-                    });
-                    builder.show();
-                    break;
-                case R.id.btnAddGroup_No:
-                    activity.CloseAddGroup();
-                    break;
+                        break;
+                    case R.id.btnAddGroup_No:
+                        activity.CloseAddGroup();
+                        break;
+
             }
         }
     };

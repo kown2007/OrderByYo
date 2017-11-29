@@ -1,12 +1,28 @@
 package com.myapplication.xuan.orderbyyo;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ListView;
+import android.widget.Spinner;
+import android.widget.Toast;
+
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -26,9 +42,19 @@ public class AddOrderFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
-
+    //////////////////////////////////////////////////////
     MainActivity activity;
+    DatabaseReference ref;
+    ListView listView_AO;
+    EditText title_name,item_name,item_price;
+    ImageButton imb;
+    Button btnOK,btnNO;
+    Spinner spinner,spinner_kind;
+    List newlist,namelist,priceList;
+    ArrayAdapter adapter,spadapter,kindadapter;
+    String kind="",name="",price="",group="";
 
+    //////////////////////////////////////////////////////
     private OnFragmentInteractionListener mListener;
 
     public AddOrderFragment() {
@@ -69,7 +95,28 @@ public class AddOrderFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_add_order, container, false);
+        View v=inflater.inflate(R.layout.fragment_add_order, container, false);
+        ref = FirebaseDatabase.getInstance().getReference("OrderList");
+
+        listView_AO = (ListView)v.findViewById(R.id.listView_AddOrder);
+        title_name = (EditText)v.findViewById(R.id.etAddOrder_Title);
+        item_name = (EditText)v.findViewById(R.id.etAOItemName);
+        item_price = (EditText)v.findViewById(R.id.etAOItemPrice);
+        spinner = (Spinner)v.findViewById(R.id.spinner_AOGroup);
+        spinner_kind = (Spinner)v.findViewById(R.id.spinner_kind);
+        btnOK = (Button)v.findViewById(R.id.btnAddOrder_OK);
+        btnNO = (Button)v.findViewById(R.id.btnAddOrder_NO);
+        imb = (ImageButton)v.findViewById(R.id.imbAOadd);
+
+        newlist= new ArrayList();
+        namelist = new ArrayList();
+        priceList = new ArrayList();
+
+        btnOK.setOnClickListener(btnListener);
+        btnNO.setOnClickListener(btnListener);
+        imb.setOnClickListener(btnListener);
+        //setSpinner();
+        return v;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -109,5 +156,93 @@ public class AddOrderFragment extends Fragment {
     public interface OnFragmentInteractionListener {
         // TODO: Update argument type and name
         void onFragmentInteraction(Uri uri);
+    }
+
+    View.OnClickListener btnListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            name = item_name.getText().toString();
+            price = item_price.getText().toString();
+            switch (v.getId()){
+                case R.id.btnAddOrder_OK:
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("確定新增點單?(Add Order?)");
+                    builder.setPositiveButton("No",null);
+                    builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            ref.child(kind).child(title_name.getText().toString())
+                                    .child("group").setValue(group);
+                            for (int i = 0; i < namelist.size(); i++) {
+                                ref.child(kind).child(title_name.getText().toString())
+                                        .child("menu")
+                                        .child(namelist.get(i).toString())
+                                        .setValue(priceList.get(i).toString());
+                            }
+                            title_name.setText("");
+                            adapter.clear();
+                            listView_AO.setAdapter(adapter);
+
+                            activity.CloseAddOrder();
+                        }
+                    });
+                    builder.show();
+
+                    break;
+                case R.id.btnAddOrder_NO:
+                    activity.CloseAddOrder();
+                    break;
+
+                case R.id.imbAOadd:
+                    if(name.equals("")||price.equals("")){
+                        Toast.makeText(getActivity(),"欄位請勿空白!\n Don't blank the field!",Toast.LENGTH_SHORT).show();
+                    }else{
+                        namelist.add(name);
+                        priceList.add(price);
+                        newlist.add(name+":"+price);
+                        adapter=new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,newlist);
+                        listView_AO.setAdapter(adapter);
+                        item_name.setText("");
+                        item_price.setText("");
+                    }
+                    break;
+
+            }
+
+        }
+    };
+
+    public void setSpinner(){
+        kindadapter = ArrayAdapter.createFromResource(getActivity(),R.array.Kind,android.R.layout.simple_spinner_dropdown_item);
+        spinner_kind.setAdapter(kindadapter);
+        spinner_kind.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if(position==0){
+                    kind = "Food";
+                }else{
+                    kind = "Drink";
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+        spadapter = new ArrayAdapter(getActivity(),android.R.layout.simple_spinner_dropdown_item,activity.mygroup);
+        spinner.setAdapter(spadapter);
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                group = activity.mygroup.get(position).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
     }
 }
