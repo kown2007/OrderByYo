@@ -184,7 +184,7 @@ public class AddOrderFragment extends Fragment {
                             title_name.setText("");
                             adapter.clear();
                             listView_AO.setAdapter(adapter);
-
+                            activity.ResetOrder();
                             activity.CloseAddOrder();
                         }
                     });
@@ -215,6 +215,9 @@ public class AddOrderFragment extends Fragment {
     };
 
     public void setSpinner(){
+        namelist.clear();
+        priceList.clear();
+
         kindadapter = ArrayAdapter.createFromResource(getActivity(),R.array.Kind,android.R.layout.simple_spinner_dropdown_item);
         spinner_kind.setAdapter(kindadapter);
         spinner_kind.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

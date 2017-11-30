@@ -164,6 +164,7 @@ public class GroupAddFragment extends Fragment {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
                                     ref.child(newgpName).child("password").setValue(newgpPassword);//新增到全部群組
+                                    ref.child(newgpName).child("boss").setValue(activity.user);//設定群組創建人
                                     mref.child(activity.user).child("group").child(newgpName).setValue(newgpName);//把自己加入群組
                                     activity.CloseAddGroup();
                                 }

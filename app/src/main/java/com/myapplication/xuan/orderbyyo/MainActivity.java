@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -17,7 +19,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -27,6 +34,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.Inflater;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -42,14 +50,17 @@ public class MainActivity extends AppCompatActivity
     NextOrderFragment nextOrderFragment;
     HomeFragment homeFragment;
 
-    DatabaseReference ref;
+    DatabaseReference ref,odref,gpref;
 
-    Boolean blSignIn;
+    Boolean blSignIn,bl_DGP;
     String user;
-    public String nextChoose1,nextChoose2;
-    public List mygroup;
+    public String nextChoose1,nextChoose2,nextBoss,groupBoss;
+    public List mygroup,mydataList,searchList,search_n;
     TextView navname,navtitle;
-    View header;
+    View header,vmydata,vSearch,vDeleteGP;
+    int total=0;
+    ListView listView_DGP;
+    ArrayAdapter adapter_DGP;
 
 
 
@@ -60,6 +71,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         setTitle("Home");
+
         //設置Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -75,6 +87,12 @@ public class MainActivity extends AppCompatActivity
 
 
         mygroup = new ArrayList();
+        mydataList = new ArrayList();
+        searchList = new ArrayList();
+        search_n = new ArrayList();
+        vmydata = LayoutInflater.from(MainActivity.this).inflate(R.layout.mydata,null);
+        vSearch = LayoutInflater.from(MainActivity.this).inflate(R.layout.searchlist,null);
+        vDeleteGP = LayoutInflater.from(MainActivity.this).inflate(R.layout.deletegroup,null);
 
 
 
@@ -172,12 +190,100 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_mydata) {
+            ListView listViewAL = (ListView)vmydata.findViewById(R.id.listView_mydata);
+            ArrayAdapter adapterAL = new ArrayAdapter(this,android.R.layout.simple_list_item_1,mydataList);
+            listViewAL.setAdapter(adapterAL);
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("我的資料");
+            if (vmydata.getParent() != null) {
+                ((ViewGroup) vmydata.getParent()).removeView(vmydata);
+            }
+            builder.setView(vmydata);
+            builder.setPositiveButton("確定", null);
+            builder.show();
             return true;
-        }else
-        if (id == R.id.action_add) {
-            return true;
+//        }else
+//        if (id == R.id.action_add) {
+//            Toast.makeText(this,"MAin",Toast.LENGTH_SHORT).show();
+//            return true;
         }else
         if (id == R.id.action_delete) {
+            DeleteGroup();
+
+            return true;
+        }
+        if (id == R.id.action_search) {
+            searchList.clear();
+            search_n.clear();
+            total =0;
+            odref = FirebaseDatabase.getInstance().getReference("OrderList");
+            odref.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        for (DataSnapshot ds : dataSnapshot.child(nextChoose1).child(nextChoose2)
+                                .child("List").getChildren()) {
+
+                            for (DataSnapshot dd : ds.getChildren()) {//尋覽有訂餐的使用者
+
+                                if (dd.getKey().equals("total")) {
+                                    total += Integer.parseInt(dd.getValue().toString());
+                                    Log.d("nnnn", "Total:" + total);
+                                } else {
+                                    boolean bl_search = false;
+                                    for (int i = 0; i < searchList.size(); i++) {
+                                        if (dd.getKey().toString().equals(searchList.get(i).toString())) {
+                                            bl_search = true;
+                                            search_n.set(i, Integer.parseInt(search_n.get(i).toString()) + 1);
+                                        }
+                                    }
+                                    if (!bl_search) {
+                                        searchList.add(dd.getKey());
+                                        search_n.add(1);
+
+                                    }
+                                }
+                            }
+
+
+                        }
+                        for (int j = 0; j < searchList.size(); j++) {
+                            searchList.set(j, searchList.get(j) + ":" + search_n.get(j));
+                        }
+
+                        ListView listView_search = (ListView) vSearch.findViewById(R.id.listView_search);
+                        ArrayAdapter adapter_search = new ArrayAdapter(MainActivity.this, android.R.layout.simple_list_item_1, searchList);
+                        listView_search.setAdapter(adapter_search);
+                        TextView tv_search = (TextView) vSearch.findViewById(R.id.tvSearch);
+                        tv_search.setText("Total:" + total);
+                        AlertDialog.Builder search = new AlertDialog.Builder(MainActivity.this);
+                        search.setTitle("總單(All List)");
+                        if (vSearch.getParent() != null) {
+                            ((ViewGroup) vSearch.getParent()).removeView(vSearch);
+                        }
+                        search.setView(vSearch);
+                        search.setPositiveButton("確定", null);
+                        search.show();
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+            return true;
+        }
+        if (id == R.id.action_deleteorder) {
+            if(nextBoss.equals(user)){
+                odref = FirebaseDatabase.getInstance().getReference("OrderList");
+                odref.child(nextChoose1).child(nextChoose2).removeValue();
+                CloseNextOrder();
+                orderFragment.onResume();
+                Toast.makeText(this,"OK",Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(this,"非創建人無法刪除\nInsufficient permissions",Toast.LENGTH_SHORT).show();
+            }
             return true;
         }
 
@@ -284,10 +390,26 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 mygroup.clear();
+                mydataList.clear();
+                mydataList.add("User:"+user);
                 for(DataSnapshot ds:dataSnapshot.getChildren()){
                     if(ds.getKey().toString().equals(user)) {
                         for(DataSnapshot s: ds.child("group").getChildren()){
                             mygroup.add(s.getKey().toString());
+                        }
+                        for(DataSnapshot ss:ds.getChildren()){
+                            if(!ss.getKey().toString().equals("password")) {
+                                if(ss.getKey().toString().equals("group")){
+                                    String str="" ;
+                                    for(DataSnapshot sss:ss.getChildren()){
+                                        str += (" " + sss.getKey());
+                                    }
+                                    mydataList.add(ss.getKey()+":"+str);
+
+                                }else {
+                                    mydataList.add(ss.getKey().toString() + ":" + ss.getValue());
+                                }
+                            }
                         }
                     }
                 }
@@ -311,6 +433,80 @@ public class MainActivity extends AppCompatActivity
 
     }
 
+    public void ResetOrder(){
+        orderFragment.onResume();
+    }
+
+    public void DeleteGroup(){
+        bl_DGP = false;
+        listView_DGP = (ListView)vDeleteGP.findViewById(R.id.listView_DeleteGroup);
+        adapter_DGP = new ArrayAdapter(this,android.R.layout.simple_list_item_1,mygroup);
+        listView_DGP.setAdapter(adapter_DGP);
+        listView_DGP.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                gpref = FirebaseDatabase.getInstance().getReference("Group");
+                gpref.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+
+                        if(!bl_DGP) {
+                            Log.d("nnnn", mygroup.toString());
+                            groupBoss = dataSnapshot.child(mygroup.get(position).toString()).child("boss")
+                                    .getValue().toString();
+
+                            if (groupBoss.equals(user)) {
+                                AlertDialog.Builder builder2 = new AlertDialog.Builder(MainActivity.this);
+                                builder2.setTitle("確定刪除群組嗎?Are you sure?");
+                                builder2.setMessage("刪除後無法復原哦!\nCan not be restored after deleted!!");
+                                builder2.setPositiveButton("取消", null);
+                                builder2.setNegativeButton("確定", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        gpref.child(mygroup.get(position).toString()).removeValue();
+                                        Toast.makeText(MainActivity.this, "刪除成功!\nSuccessful!", Toast.LENGTH_SHORT).show();
+                                        ref = FirebaseDatabase.getInstance().getReference("Users");
+                                        ref.child(user).child("group").child(mygroup.get(position).toString()).removeValue();
+
+                                    }
+                                });
+                                builder2.show();
+                                SearchGroup();
+                                adapter_DGP = new ArrayAdapter(MainActivity.this,android.R.layout.simple_list_item_1,mygroup);
+                                listView_DGP.setAdapter(adapter_DGP);
+                                bl_DGP =true;
+
+                            } else {
+                                Toast.makeText(MainActivity.this, "非創建人無法刪除\nInsufficient permissions", Toast.LENGTH_SHORT).show();
+                            }
+
+                        }
+
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        });
 
 
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("選擇群組");
+        if (vDeleteGP.getParent() != null) {
+            ((ViewGroup) vDeleteGP.getParent()).removeView(vDeleteGP);
+        }
+        builder.setView(vDeleteGP);
+        builder.setPositiveButton("取消",null);
+        builder.show();
+
+
+
+
+
+
+    }
 }

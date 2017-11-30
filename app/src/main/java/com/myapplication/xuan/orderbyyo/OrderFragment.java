@@ -51,14 +51,13 @@ public class OrderFragment extends Fragment {
     private TextView orderFood,orderDrink;
     private DatabaseReference ref;
     private View view;
-    private FragmentManager fm;
-    private FragmentTransaction ft;
+
     private Button btnAddOrder;
     private List foodlist,drinklist,ODclickList,groupList;
     private ListView orderlistView;
-    private ArrayAdapter adapterOrder,nextadapter,saveadapter;
+    private ArrayAdapter adapterOrder;
     public String myChoose="",clickChoose="",OLG;
-    Bundle bundle;
+    int tvChoose=0;
     MainActivity activity;
 
     //============================================//
@@ -117,17 +116,22 @@ public class OrderFragment extends Fragment {
         ODclickList = new ArrayList();
         groupList = new ArrayList();
 
-        orderFood.setOnClickListener(ClickFood);
-        orderDrink.setOnClickListener(ClickFood);
-        btnAddOrder.setOnClickListener(ClickBtnAdd);
+
         return view;
 
     }
 
     @Override
     public void onResume() {
-
+        if(tvChoose==1){
+            setListFood();
+        }else if(tvChoose==2){
+            setListDrink();
+        }
         ref.addValueEventListener(OrderVEL);
+        orderFood.setOnClickListener(ClickFood);
+        orderDrink.setOnClickListener(ClickFood);
+        btnAddOrder.setOnClickListener(ClickBtnAdd);
         orderlistView.setOnItemClickListener(OrderListListener);
 
         super.onResume();
@@ -135,27 +139,11 @@ public class OrderFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.group,menu);
+        inflater.inflate(R.menu.main,menu);
         super.onCreateOptionsMenu(menu,inflater);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_mydata) {
-            return true;
-        }else
-        if (id == R.id.action_add) {
-            return true;
-        }else
-        if (id == R.id.action_delete) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -239,20 +227,10 @@ public class OrderFragment extends Fragment {
         public void onClick(View v) {
             switch (v.getId()){
                 case R.id.tvOrderFood:
-                    orderFood.setBackgroundColor(Color.parseColor("#66FFE6"));
-                    orderDrink.setBackgroundColor(Color.WHITE);
-                    adapterOrder = new ArrayAdapter(
-                            getActivity(),android.R.layout.simple_list_item_1,foodlist);
-                    orderlistView.setAdapter(adapterOrder);
-                    myChoose = "Food";
+                    setListFood();
                     break;
                 case R.id.tvOrderDrink:
-                    orderFood.setBackgroundColor(Color.WHITE);
-                    orderDrink.setBackgroundColor(Color.parseColor("#66FFE6"));
-                    adapterOrder = new ArrayAdapter(
-                            getActivity(),android.R.layout.simple_list_item_1,drinklist);
-                    orderlistView.setAdapter(adapterOrder);
-                    myChoose = "Drink";
+                    setListDrink();
                     break;
             }
         }
@@ -271,7 +249,6 @@ public class OrderFragment extends Fragment {
             new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    saveadapter = adapterOrder;
                     //判斷現在位於哪個選單進而判斷選單選項
                     if(myChoose.equals("Food")){
                         clickChoose = foodlist.get(position).toString();
@@ -280,6 +257,7 @@ public class OrderFragment extends Fragment {
                         if(myChoose.equals("Drink")){
                            clickChoose = drinklist.get(position).toString();
                         }
+
 
 
                     //取按下選項的詳細資料
@@ -334,6 +312,24 @@ public class OrderFragment extends Fragment {
         ref.addValueEventListener(OrderVEL);
         orderlistView.setOnItemClickListener(OrderListListener);
 
+    }
+    public void setListFood(){
+        orderFood.setBackgroundColor(Color.parseColor("#66FFE6"));
+        orderDrink.setBackgroundColor(Color.WHITE);
+        adapterOrder = new ArrayAdapter(
+                getActivity(),android.R.layout.simple_list_item_1,foodlist);
+        orderlistView.setAdapter(adapterOrder);
+        myChoose = "Food";
+        tvChoose = 1;
+    }
+    public void setListDrink(){
+        orderFood.setBackgroundColor(Color.WHITE);
+        orderDrink.setBackgroundColor(Color.parseColor("#66FFE6"));
+        adapterOrder = new ArrayAdapter(
+                getActivity(),android.R.layout.simple_list_item_1,drinklist);
+        orderlistView.setAdapter(adapterOrder);
+        myChoose = "Drink";
+        tvChoose = 2;
     }
 
 

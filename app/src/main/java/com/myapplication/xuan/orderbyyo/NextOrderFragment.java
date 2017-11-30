@@ -149,27 +149,10 @@ public class NextOrderFragment extends Fragment {
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.group,menu);
+        inflater.inflate(R.menu.nextorder,menu);
         super.onCreateOptionsMenu(menu,inflater);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_mydata) {
-            return true;
-        }else
-        if (id == R.id.action_add) {
-            return true;
-        }else
-        if (id == R.id.action_delete) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -367,7 +350,9 @@ public class NextOrderFragment extends Fragment {
                                     nextList.add(ss.getKey().toString());
                                     priceList.add(ss.getValue());
                                 }
-                            }
+                            }else if(s.getKey().toString().equals("boss")){
+                                    activity.nextBoss = s.getValue().toString();//取出訂單創建人
+                                }
                         }
                     }
                 }
@@ -492,5 +477,6 @@ public class NextOrderFragment extends Fragment {
         });//NegativeButton
         builderA.show();
     }
+
 
 }

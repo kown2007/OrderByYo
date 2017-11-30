@@ -64,6 +64,8 @@ public class GroupFragment extends Fragment {
     private Button btnAddGroup;
     private EditText etPC;
     MainActivity activity;
+    MenuInflater menuInflater;
+
 
 
 
@@ -97,6 +99,7 @@ public class GroupFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
 
     }
 
@@ -162,25 +165,10 @@ public class GroupFragment extends Fragment {
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.group,menu);
         super.onCreateOptionsMenu(menu,inflater);
+
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_mydata) {
-            return true;
-        }else
-        if (id == R.id.action_add) {
-            return true;
-        }else
-        if (id == R.id.action_delete) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
 
     // TODO: Rename method, update argument and hook method into UI event
     public void onButtonPressed(Uri uri) {
