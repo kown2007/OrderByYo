@@ -1,4 +1,5 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,13 +14,21 @@
         android:layout_height="50sp"
         android:textColor="#FFF"
         android:textSize="25sp"
-        android:background="@drawable/hometv"
+       android:background="#B87333"
         android:gravity="center"
         android:text="您 的 訂 單 :" />
 
     <ListView
         android:id="@+id/listView_Home"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_width="wrap_content"
+        android:layout_height="410dp" />
+
+    <ImageButton
+        android:id="@+id/imgBtnHome"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:srcCompat="@drawable/homesearchicon" />
 
 </LinearLayout>
+    <!--android:background="@drawable/hometv"-->

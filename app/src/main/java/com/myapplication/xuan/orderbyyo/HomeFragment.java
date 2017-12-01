@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageButton;
 import android.widget.ListView;
 
 import com.google.firebase.database.DataSnapshot;
@@ -49,6 +50,7 @@ public class HomeFragment extends Fragment {
     ArrayAdapter adapter;
     DatabaseReference mref;
     MainActivity activity;
+    ImageButton imb;
 
 
     /////////////////////////////////////////////////////
@@ -97,8 +99,10 @@ public class HomeFragment extends Fragment {
         myorderall = new ArrayList();
 
         listViewHome = (ListView) v.findViewById(R.id.listView_Home);
-        SetHomeListView();
+
         home = inflater.inflate(R.layout.home_select_view,null);
+        imb=(ImageButton)v.findViewById(R.id.imgBtnHome);
+        imb.setOnClickListener(imbListener);
 
         return v;
     }
@@ -206,4 +210,10 @@ public class HomeFragment extends Fragment {
         });
 
     }
+    View.OnClickListener imbListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            SetHomeListView();
+        }
+    };
 }

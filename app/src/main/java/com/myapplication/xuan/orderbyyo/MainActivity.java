@@ -146,12 +146,8 @@ public class MainActivity extends AppCompatActivity
         }
         SearchGroup();
 
-
-
         //設置側選單使用者名稱
         navname.setText(sharedPreferences.getString("User",null));
-
-
 
         //隱藏所有的Fragment
         ft = fm.beginTransaction();
