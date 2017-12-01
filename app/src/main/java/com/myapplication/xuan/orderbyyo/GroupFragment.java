@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -65,6 +66,7 @@ public class GroupFragment extends Fragment {
     private EditText etPC;
     MainActivity activity;
     MenuInflater menuInflater;
+    int gpChoose =0;
 
 
 
@@ -117,9 +119,7 @@ public class GroupFragment extends Fragment {
         listView = (ListView) view.findViewById(R.id.listView_Group);
         btnAddGroup = (Button) view.findViewById(R.id.btnGroupAdd);
 
-        GroupMy.setOnClickListener(tvListener);
-        GroupAll.setOnClickListener(tvListener);
-        btnAddGroup.setOnClickListener(btnListener);
+
         grouplist = new ArrayList();
         mygroup = new ArrayList();
         etPC = (EditText) vpasscheck.findViewById(R.id.etCheckPassword);
@@ -136,7 +136,7 @@ public class GroupFragment extends Fragment {
         super.onResume();
         sharedPreferences =this.getActivity().getSharedPreferences("userList", Context.MODE_PRIVATE);
         user = sharedPreferences.getString("User",null);
-
+        activity.SearchGroup();
         //取出使用者群組
         mygroup = ((MainActivity)getActivity()).mygroup;
 
@@ -156,8 +156,16 @@ public class GroupFragment extends Fragment {
 
             }
         });
+        Log.d("nnnn",""+gpChoose+":"+mygroup);
+        if(gpChoose ==1){
+            setMyGroupList();
+        }else if(gpChoose ==2){
+            setAllGroupList();
+        }
 
-
+        GroupMy.setOnClickListener(tvListener);
+        GroupAll.setOnClickListener(tvListener);
+        btnAddGroup.setOnClickListener(btnListener);
 
     }
 
@@ -215,100 +223,12 @@ public class GroupFragment extends Fragment {
         public void onClick(View v) {
             switch (v.getId()){
                 case R.id.tvGroupMy://選取我的群組時
-                    GroupMy.setBackgroundColor(Color.parseColor("#66FFE6"));
-                    GroupAll.setBackgroundColor(Color.WHITE);
-                    adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,mygroup);
-                    listView.setAdapter(adapter);
-                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override
-                        public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                            AlertDialog.Builder buout = new AlertDialog.Builder(getActivity());
-                            buout.setTitle("要退出群組嗎?");
-                            buout.setMessage("退出後將無法再訂此群組的單哦!");
-                            buout.setPositiveButton("No",null);
-                            buout.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    AlertDialog.Builder buout2 = new AlertDialog.Builder(getActivity());
-                                    buout2.setTitle("確定退出群組?");
-                                    buout2.setPositiveButton("No",null);
-                                    buout2.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            mref.child(activity.user).child("group").child(mygroup.get(position).toString())
-                                                    .removeValue();
-                                            activity.SearchGroup();
-                                            adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,mygroup);
-                                            listView.setAdapter(adapter);
-                                        }
-                                    });
-                                    buout2.show();
-                                }
-                            });
-                            buout.show();
-                        }
-                    });
+                    setMyGroupList();
+
                     break;
                 case R.id.tvGroupAll://選取所有群組時
-                    GroupMy.setBackgroundColor(Color.WHITE);
-                    GroupAll.setBackgroundColor(Color.parseColor("#66FFE6"));
-                    adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,grouplist);
-                    listView.setAdapter(adapter);
-                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                        @Override/////第一個對話視窗/////////////////////////////////////////////////////
-                        public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                            builder.setTitle("要申請加入群組嗎?");
-                            builder.setMessage("Do you want to join this group?");
-                            builder.setPositiveButton("No",null);
-                            builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-                                @Override////第二個對話視窗/////////////////////////////////////////////
-                                public void onClick(DialogInterface dialog, int which) {
-                                    AlertDialog.Builder builder2 = new AlertDialog.Builder(getActivity());
-                                    //////////////////////////////////////////////////////////////
-                                    if(vpasscheck.getParent() != null){
-                                        ((ViewGroup)vpasscheck.getParent()).removeView(vpasscheck);
-                                    }
-                                    //////////////////////////////////////////////////////////////
-                                    builder2.setView(vpasscheck);
-                                    builder2.setTitle("請輸入群組密碼");
-                                    builder2.setPositiveButton("取消",null);
-                                    builder2.setNegativeButton("確定", new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            ref.addValueEventListener(new ValueEventListener() {
-                                                @Override
-                                                public void onDataChange(DataSnapshot dataSnapshot) {
-                                                    for(DataSnapshot ds:dataSnapshot.getChildren()){
-                                                        if(ds.getKey().toString().equals(grouplist.get(position))){
-                                                            /////////////////判斷密碼正不正確////////////////////////
-                                                            if(etPC.getText().toString().equals(ds.child("password").getValue().toString())){
-                                                                mref.child(user).child("group")
-                                                                        .child(grouplist.get(position).toString())
-                                                                        .setValue(grouplist.get(position));
-                                                                Toast.makeText(getActivity(),"成功!!Successful!!",Toast.LENGTH_SHORT).show();
-                                                            }else {
-                                                                Toast.makeText(getActivity(),"密碼錯誤!!Wrong!!",Toast.LENGTH_SHORT).show();
-                                                            }
+                    setAllGroupList();
 
-                                                            etPC.setText("");
-                                                        }
-                                                    }
-                                                }
-
-                                                @Override
-                                                public void onCancelled(DatabaseError databaseError) {
-
-                                                }
-                                            });
-                                        }
-                                    });
-                                    builder2.show();
-                                }
-                            });
-                            builder.show();
-                        }
-                    });
                     break;
             }
 
@@ -322,7 +242,113 @@ public class GroupFragment extends Fragment {
         }
     };
 
-    public void setMyGPlist(){
+    public void setMyGroupList(){
+        GroupMy.setBackgroundColor(Color.parseColor("#66FFE6"));
+        GroupAll.setBackgroundColor(Color.WHITE);
+        adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,mygroup);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                AlertDialog.Builder buout = new AlertDialog.Builder(getActivity());
+                buout.setTitle("要退出群組嗎?");
+                buout.setMessage("退出後將無法再訂此群組的單哦!");
+                buout.setPositiveButton("No",null);
+                buout.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        AlertDialog.Builder buout2 = new AlertDialog.Builder(getActivity());
+                        buout2.setTitle("確定退出群組?");
+                        buout2.setPositiveButton("No",null);
+                        buout2.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                mref.child(activity.user).child("group").child(mygroup.get(position).toString())
+                                        .removeValue();
+                                activity.SearchGroup();
+                                adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,mygroup);
+                                listView.setAdapter(adapter);
+                            }
+                        });
+                        buout2.show();
+                    }
+                });
+                buout.show();
+            }
+        });
+        gpChoose=1;
+    }
+
+    public void setAllGroupList(){
+        GroupMy.setBackgroundColor(Color.WHITE);
+        GroupAll.setBackgroundColor(Color.parseColor("#66FFE6"));
+        adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1,grouplist);
+        listView.setAdapter(adapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override/////第一個對話視窗/////////////////////////////////////////////////////
+            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("要申請加入群組嗎?");
+                builder.setMessage("Do you want to join this group?");
+                builder.setPositiveButton("No",null);
+                builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override////第二個對話視窗/////////////////////////////////////////////
+                    public void onClick(DialogInterface dialog, int which) {
+                        AlertDialog.Builder builder2 = new AlertDialog.Builder(getActivity());
+                        //////////////////////////////////////////////////////////////
+                        if(vpasscheck.getParent() != null){
+                            ((ViewGroup)vpasscheck.getParent()).removeView(vpasscheck);
+                        }
+                        //////////////////////////////////////////////////////////////
+                        builder2.setView(vpasscheck);
+                        builder2.setTitle("請輸入群組密碼");
+                        builder2.setPositiveButton("取消",null);
+                        builder2.setNegativeButton("確定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ref.addValueEventListener(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        for(DataSnapshot ds:dataSnapshot.getChildren()){
+                                            if(ds.getKey().toString().equals(grouplist.get(position))){
+                                                /////////////////判斷密碼正不正確////////////////////////
+                                                if(etPC.getText().toString().equals(ds.child("password").getValue().toString())){
+                                                    mref.child(user).child("group")
+                                                            .child(grouplist.get(position).toString())
+                                                            .setValue(grouplist.get(position));
+                                                    Toast.makeText(getActivity(),"成功!!Successful!!",Toast.LENGTH_SHORT).show();
+                                                }else {
+                                                    Toast.makeText(getActivity(),"密碼錯誤!!Wrong!!",Toast.LENGTH_SHORT).show();
+                                                }
+
+                                                etPC.setText("");
+                                            }
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+
+                                    }
+                                });
+                            }
+                        });
+                        builder2.show();
+                    }
+                });
+                builder.show();
+            }
+        });
+        gpChoose=2;
+    }
+
+    public void ResetListView(){
+        GroupMy.setBackgroundColor(Color.WHITE);
+        GroupAll.setBackgroundColor(Color.WHITE);
+        adapter.clear();
+        listView.setAdapter(adapter);
+        GroupMy.setOnClickListener(tvListener);
+        GroupAll.setOnClickListener(tvListener);
 
     }
 }

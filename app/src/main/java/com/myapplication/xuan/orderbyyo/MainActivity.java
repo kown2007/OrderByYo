@@ -22,7 +22,9 @@ import android.view.MenuItem;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CheckedTextView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -52,16 +54,17 @@ public class MainActivity extends AppCompatActivity
 
     DatabaseReference ref,odref,gpref;
 
-    Boolean blSignIn,bl_DGP;
-    String user;
+    Boolean blSignIn;
+    String user,deleteGPChoose;
     public String nextChoose1,nextChoose2,nextBoss,groupBoss;
-    public List mygroup,mydataList,searchList,search_n;
+    public List mygroup,mydataList,searchList,search_n,mygroup_Delete;
     TextView navname,navtitle;
-    View header,vmydata,vSearch,vDeleteGP;
+    View header,vmydata,vSearch,vDeleteGP,vDeleteList;
     int total=0;
+    public  static  int rb_n=-1;
     ListView listView_DGP;
     ArrayAdapter adapter_DGP;
-
+    boolean bl_delete;
 
 
 
@@ -90,9 +93,12 @@ public class MainActivity extends AppCompatActivity
         mydataList = new ArrayList();
         searchList = new ArrayList();
         search_n = new ArrayList();
+        mygroup_Delete = new ArrayList();
+
         vmydata = LayoutInflater.from(MainActivity.this).inflate(R.layout.mydata,null);
         vSearch = LayoutInflater.from(MainActivity.this).inflate(R.layout.searchlist,null);
         vDeleteGP = LayoutInflater.from(MainActivity.this).inflate(R.layout.deletegroup,null);
+        vDeleteList = LayoutInflater.from(MainActivity.this).inflate(R.layout.my_delete_list,null);
 
 
 
@@ -139,6 +145,7 @@ public class MainActivity extends AppCompatActivity
             startActivity(signIn);
         }
         SearchGroup();
+
 
 
         //設置側選單使用者名稱
@@ -209,7 +216,6 @@ public class MainActivity extends AppCompatActivity
         }else
         if (id == R.id.action_delete) {
             DeleteGroup();
-
             return true;
         }
         if (id == R.id.action_search) {
@@ -368,6 +374,7 @@ public class MainActivity extends AppCompatActivity
     public void CloseAddGroup(){
         ft = fm.beginTransaction();
         ft.show(groupFragment).hide(groupAddFragment).commit();
+        groupFragment.onResume();
     }
 
     //跳出餐點menu
@@ -438,62 +445,23 @@ public class MainActivity extends AppCompatActivity
     }
 
     public void DeleteGroup(){
-        bl_DGP = false;
-        listView_DGP = (ListView)vDeleteGP.findViewById(R.id.listView_DeleteGroup);
-        adapter_DGP = new ArrayAdapter(this,android.R.layout.simple_list_item_1,mygroup);
-        listView_DGP.setAdapter(adapter_DGP);
-        listView_DGP.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        Spinner spinner = (Spinner) vDeleteGP.findViewById(R.id.spinner_deleteGP);
+        adapter_DGP = new ArrayAdapter(this,android.R.layout.simple_spinner_dropdown_item,mygroup);
+        spinner.setAdapter(adapter_DGP);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, final int position, long id) {
-                gpref = FirebaseDatabase.getInstance().getReference("Group");
-                gpref.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                deleteGPChoose = mygroup.get(position).toString();
+            }
 
-                        if(!bl_DGP) {
-                            Log.d("nnnn", mygroup.toString());
-                            groupBoss = dataSnapshot.child(mygroup.get(position).toString()).child("boss")
-                                    .getValue().toString();
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
 
-                            if (groupBoss.equals(user)) {
-                                AlertDialog.Builder builder2 = new AlertDialog.Builder(MainActivity.this);
-                                builder2.setTitle("確定刪除群組嗎?Are you sure?");
-                                builder2.setMessage("刪除後無法復原哦!\nCan not be restored after deleted!!");
-                                builder2.setPositiveButton("取消", null);
-                                builder2.setNegativeButton("確定", new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        gpref.child(mygroup.get(position).toString()).removeValue();
-                                        Toast.makeText(MainActivity.this, "刪除成功!\nSuccessful!", Toast.LENGTH_SHORT).show();
-                                        ref = FirebaseDatabase.getInstance().getReference("Users");
-                                        ref.child(user).child("group").child(mygroup.get(position).toString()).removeValue();
-
-                                    }
-                                });
-                                builder2.show();
-                                SearchGroup();
-                                adapter_DGP = new ArrayAdapter(MainActivity.this,android.R.layout.simple_list_item_1,mygroup);
-                                listView_DGP.setAdapter(adapter_DGP);
-                                bl_DGP =true;
-
-                            } else {
-                                Toast.makeText(MainActivity.this, "非創建人無法刪除\nInsufficient permissions", Toast.LENGTH_SHORT).show();
-                            }
-
-                        }
-
-                    }
-
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
             }
         });
 
-
-
+        bl_delete=false;
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("選擇群組");
         if (vDeleteGP.getParent() != null) {
@@ -501,6 +469,45 @@ public class MainActivity extends AppCompatActivity
         }
         builder.setView(vDeleteGP);
         builder.setPositiveButton("取消",null);
+        builder.setNegativeButton("確定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                AlertDialog.Builder builder2 = new AlertDialog.Builder(MainActivity.this);
+                builder2.setTitle("確定刪除群組嗎?Are you sure?");
+                builder2.setMessage("刪除後無法復原哦!\nCan not be restored after deleted!!");
+                builder2.setPositiveButton("取消", null);
+                builder2.setNegativeButton("確定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        gpref = FirebaseDatabase.getInstance().getReference("Group");
+                        ref = FirebaseDatabase.getInstance().getReference("Users");
+                        gpref.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                if(!bl_delete) {
+                                    if (dataSnapshot.child(deleteGPChoose).child("boss").getValue().toString().equals(user)) {
+                                        gpref.child(deleteGPChoose).removeValue();
+                                        ref.child(user).child("group").child(deleteGPChoose).removeValue();
+                                        SearchGroup();
+                                        groupFragment.ResetListView();
+                                    } else {
+                                        Toast.makeText(MainActivity.this, "非創建人無法刪除\nInsufficient permissions", Toast.LENGTH_SHORT).show();
+                                    }
+                                    bl_delete=true;
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+                    }
+                });
+                builder2.show();
+            }
+        });
         builder.show();
 
 
