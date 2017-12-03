@@ -7,6 +7,16 @@
         android:title="統整訂單"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_openOrder"
+        android:orderInCategory="100"
+        android:title="開啟點餐"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/action_stopOrder"
+        android:orderInCategory="100"
+        android:title="停止點餐"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_deleteorder"
         android:orderInCategory="100"
         android:title="刪除訂單"

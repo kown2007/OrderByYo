@@ -195,7 +195,10 @@ public class OrderFragment extends Fragment {
                         for(DataSnapshot s:ds.getChildren()){
                             for(Object ob:groupList) {
                                 if(s.child("group").getValue().toString().equals(ob.toString())) {
-                                    foodlist.add(s.getKey().toString());
+                                    if(s.child("open").getValue().toString().equals("1")
+                                            ||s.child("boss").getValue().toString().equals(activity.user) ) {
+                                        foodlist.add(s.getKey().toString());
+                                    }
                                 }
                             }
                         }
@@ -206,7 +209,11 @@ public class OrderFragment extends Fragment {
                         for(DataSnapshot s:ds.getChildren()){
                             for(Object ob:groupList) {
                                 if (s.child("group").getValue().toString().equals(ob.toString())) {
-                                    drinklist.add(s.getKey().toString());
+                                    if(s.child("open").getValue().toString().equals(1)
+                                            ||s.child("boss").getValue().toString().equals(activity.user))
+                                    {
+                                        drinklist.add(s.getKey().toString());
+                                    }
                                 }
                             }
                         }
@@ -270,9 +277,13 @@ public class OrderFragment extends Fragment {
                                         for (DataSnapshot s : ds.child(clickChoose).getChildren()) {
                                             if(s.getKey().toString().equals("group")){
                                                 OLG = s.getValue().toString();    //取出此訂單是哪個群的
-                                            }else {
-                                                ODclickList.add(s.getKey().toString());
+                                            }else if(s.getKey().toString().equals("open")) {
+                                                activity.nextOpen=s.getValue().toString();
                                             }
+                                            else{
+                                                    ODclickList.add(s.getKey().toString());
+                                                }
+
                                         }
                                     }
                                 }

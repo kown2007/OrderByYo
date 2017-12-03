@@ -346,10 +346,12 @@ public class NextOrderFragment extends Fragment {
                                 OLG = s.getValue().toString();    //取出此訂單是哪個群的
                             }else
                                 if(s.getKey().toString().equals("menu")){
-                                for(DataSnapshot ss:s.getChildren()) {
-                                    nextList.add(ss.getKey().toString());
-                                    priceList.add(ss.getValue());
-                                }
+
+                                        for (DataSnapshot ss : s.getChildren()) {
+                                            nextList.add(ss.getKey().toString());
+                                            priceList.add(ss.getValue());
+                                        }
+
                             }else if(s.getKey().toString().equals("boss")){
                                     activity.nextBoss = s.getValue().toString();//取出訂單創建人
                                 }

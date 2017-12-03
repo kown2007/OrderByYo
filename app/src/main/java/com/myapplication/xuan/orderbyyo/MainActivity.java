@@ -56,15 +56,14 @@ public class MainActivity extends AppCompatActivity
 
     Boolean blSignIn;
     String user,deleteGPChoose;
-    public String nextChoose1,nextChoose2,nextBoss,groupBoss;
-    public List mygroup,mydataList,searchList,search_n,mygroup_Delete;
+    public String nextChoose1,nextChoose2,nextBoss,nextOpen;
+    public List mygroup,mydataList,searchList,search_n,mygroup_Delete,cos_money_List;
     TextView navname,navtitle;
-    View header,vmydata,vSearch,vDeleteGP,vDeleteList;
+    View header,vmydata,vSearch,vSearch2,vDeleteGP,vDeleteList;
     int total=0;
     public  static  int rb_n=-1;
-    ListView listView_DGP;
     ArrayAdapter adapter_DGP;
-    boolean bl_delete;
+    boolean bl_delete,bl_stop;
 
 
 
@@ -94,9 +93,11 @@ public class MainActivity extends AppCompatActivity
         searchList = new ArrayList();
         search_n = new ArrayList();
         mygroup_Delete = new ArrayList();
+        cos_money_List = new ArrayList();
 
         vmydata = LayoutInflater.from(MainActivity.this).inflate(R.layout.mydata,null);
         vSearch = LayoutInflater.from(MainActivity.this).inflate(R.layout.searchlist,null);
+        vSearch2 = LayoutInflater.from(MainActivity.this).inflate(R.layout.search2,null);
         vDeleteGP = LayoutInflater.from(MainActivity.this).inflate(R.layout.deletegroup,null);
         vDeleteList = LayoutInflater.from(MainActivity.this).inflate(R.layout.my_delete_list,null);
 
@@ -213,10 +214,11 @@ public class MainActivity extends AppCompatActivity
         if (id == R.id.action_delete) {
             DeleteGroup();
             return true;
-        }
+        }else
         if (id == R.id.action_search) {
             searchList.clear();
             search_n.clear();
+            cos_money_List.clear();
             total =0;
             odref = FirebaseDatabase.getInstance().getReference("OrderList");
             odref.addValueEventListener(new ValueEventListener() {
@@ -225,7 +227,7 @@ public class MainActivity extends AppCompatActivity
 
                         for (DataSnapshot ds : dataSnapshot.child(nextChoose1).child(nextChoose2)
                                 .child("List").getChildren()) {
-
+                                cos_money_List.add(ds.getKey()+":"+ds.child("total").getValue());
                             for (DataSnapshot dd : ds.getChildren()) {//尋覽有訂餐的使用者
 
                                 if (dd.getKey().equals("total")) {
@@ -265,6 +267,22 @@ public class MainActivity extends AppCompatActivity
                         }
                         search.setView(vSearch);
                         search.setPositiveButton("確定", null);
+                        search.setNegativeButton("查看每個人價錢", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                ListView listView_search2 = (ListView) vSearch2.findViewById(R.id.listView_search2);
+                                ArrayAdapter adapter_search2 = new ArrayAdapter(MainActivity.this,android.R.layout.simple_list_item_1,cos_money_List);
+                                listView_search2.setAdapter(adapter_search2);
+                                AlertDialog.Builder search2 = new AlertDialog.Builder(MainActivity.this);
+                                search2.setTitle("每個人各自價格");
+                                if (vSearch2.getParent() != null) {
+                                    ((ViewGroup) vSearch2.getParent()).removeView(vSearch2);
+                                }
+                                search2.setView(vSearch2);
+                                search2.setPositiveButton("確定", null);
+                                search2.show();
+                            }
+                        });
                         search.show();
 
                 }
@@ -275,7 +293,7 @@ public class MainActivity extends AppCompatActivity
                 }
             });
             return true;
-        }
+        }else
         if (id == R.id.action_deleteorder) {
             if(nextBoss.equals(user)){
                 odref = FirebaseDatabase.getInstance().getReference("OrderList");
@@ -287,7 +305,14 @@ public class MainActivity extends AppCompatActivity
                 Toast.makeText(this,"非創建人無法刪除\nInsufficient permissions",Toast.LENGTH_SHORT).show();
             }
             return true;
-        }
+        }else
+            if(id == R.id.action_stopOrder){
+                OpenStopOrder(0);
+            }
+            else
+            if(id == R.id.action_openOrder){
+                OpenStopOrder(1);
+            }
 
         return super.onOptionsItemSelected(item);
     }
@@ -310,6 +335,7 @@ public class MainActivity extends AppCompatActivity
                     .hide(groupAddFragment)
                     .hide(nextOrderFragment)
                     .commit();
+            homeFragment.SetHomeListView();
 
         } else if (id == R.id.nav_order) {
             ft.show(orderFragment).hide(groupFragment).hide(homeFragment).commit();
@@ -378,6 +404,7 @@ public class MainActivity extends AppCompatActivity
         ft = fm.beginTransaction();
         ft.show(nextOrderFragment).hide(orderFragment).commit();
         nextOrderFragment.SetList();
+
     }
     //關閉點單
     public void CloseNextOrder(){
@@ -505,11 +532,43 @@ public class MainActivity extends AppCompatActivity
             }
         });
         builder.show();
+    }
 
-
-
-
-
+    public void OpenStopOrder(final int openstop){
+        final AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        builder.setTitle("要停止/開啟讓大家點餐嗎?(Stop Order?)");
+        builder.setMessage("停止之後大家將無法點餐!\n" +
+                "Anyone can (not) order after you approve this");
+        builder.setPositiveButton("取消",null);
+        builder.setNegativeButton("確定", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                final AlertDialog.Builder builder2 = new AlertDialog.Builder(MainActivity.this);
+                builder2.setTitle("確定要停止/開啟?\n(Are you sure to stop/open order?)");
+                builder2.setPositiveButton("取消",null);
+                builder2.setNegativeButton("確定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        odref = FirebaseDatabase.getInstance().getReference("OrderList");
+                            if(nextBoss.equals(user)){
+                                switch (openstop) {
+                                    case 0:
+                                        odref.child(nextChoose1).child(nextChoose2).child("open").setValue(0);
+                                        break;
+                                    case 1:
+                                        odref.child(nextChoose1).child(nextChoose2).child("open").setValue(1);
+                                        break;
+                                }
+                            }else{
+                                 Toast.makeText(MainActivity.this,"權限不足\nInsufficient permissions",Toast.LENGTH_SHORT).show();
+                            }
+                            CloseNextOrder();
+                    }
+                });
+                builder2.show();
+            }
+        });
+        builder.show();
 
     }
 }

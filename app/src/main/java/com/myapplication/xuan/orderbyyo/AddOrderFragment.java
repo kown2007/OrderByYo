@@ -181,6 +181,8 @@ public class AddOrderFragment extends Fragment {
                                         .child(namelist.get(i).toString())
                                         .setValue(priceList.get(i).toString());
                             }
+                            ref.child(kind).child(title_name.getText().toString())
+                                    .child("open").setValue(1);
                             title_name.setText("");
                             adapter.clear();
                             listView_AO.setAdapter(adapter);
