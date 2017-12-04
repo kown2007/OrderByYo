@@ -1,5 +1,6 @@
 package com.myapplication.xuan.orderbyyo;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -8,6 +9,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -172,6 +174,19 @@ public class GroupFragment extends Fragment {
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.group,menu);
+        MenuItem menuSearchItem = menu.findItem(R.id.my_search);
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) activity.getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menuSearchItem.getActionView();
+
+        // Assumes current activity is the searchable activity
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(activity.getComponentName()));
+
+        // 這邊讓icon可以還原到搜尋的icon
+        searchView.setIconifiedByDefault(true);
+
+        // 顯示完成鈕
+        searchView.setSubmitButtonEnabled(true);
         super.onCreateOptionsMenu(menu,inflater);
 
     }

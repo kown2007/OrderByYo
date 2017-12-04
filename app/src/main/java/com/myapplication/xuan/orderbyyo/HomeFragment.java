@@ -216,4 +216,9 @@ public class HomeFragment extends Fragment {
             SetHomeListView();
         }
     };
+
+    public void ClearHomeList(){
+        adapter=new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1);
+        listViewHome.setAdapter(adapter);
+    }
 }
