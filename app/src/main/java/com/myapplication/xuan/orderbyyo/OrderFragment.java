@@ -58,6 +58,7 @@ public class OrderFragment extends Fragment {
     private ArrayAdapter adapterOrder;
     public String myChoose="",clickChoose="",OLG;
     int tvChoose=0;
+    public boolean bl;
     MainActivity activity;
 
     //============================================//
@@ -128,6 +129,7 @@ public class OrderFragment extends Fragment {
         }else if(tvChoose==2){
             setListDrink();
         }
+
         ref.addValueEventListener(OrderVEL);
         orderFood.setOnClickListener(ClickFood);
         orderDrink.setOnClickListener(ClickFood);
@@ -188,30 +190,28 @@ public class OrderFragment extends Fragment {
     public ValueEventListener OrderVEL = new ValueEventListener() {
         @Override
         public void onDataChange(DataSnapshot dataSnapshot) {
+            if(!bl) {
                 foodlist.clear();
                 drinklist.clear();
-                for(DataSnapshot ds:dataSnapshot.getChildren()){
-                    if(ds.getKey().toString().equals("Food")){
-                        for(DataSnapshot s:ds.getChildren()){
-                            for(Object ob:groupList) {
-                                if(s.child("group").getValue().toString().equals(ob.toString())) {
-                                    if(s.child("open").getValue().toString().equals("1")
-                                            ||s.child("boss").getValue().toString().equals(activity.user) ) {
+                for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                    if (ds.getKey().toString().equals("Food")) {
+                        for (DataSnapshot s : ds.getChildren()) {
+                            for (Object ob : groupList) {
+                                if (s.child("group").getValue().toString().equals(ob.toString())) {
+                                    if (s.child("open").getValue().toString().equals("1")
+                                            || s.child("boss").getValue().toString().equals(activity.user)) {
                                         foodlist.add(s.getKey().toString());
                                     }
                                 }
                             }
                         }
 
-                    }
-                    else
-                    if(ds.getKey().toString().equals("Drink")){
-                        for(DataSnapshot s:ds.getChildren()){
-                            for(Object ob:groupList) {
+                    } else if (ds.getKey().toString().equals("Drink")) {
+                        for (DataSnapshot s : ds.getChildren()) {
+                            for (Object ob : groupList) {
                                 if (s.child("group").getValue().toString().equals(ob.toString())) {
-                                    if(s.child("open").getValue().toString().equals(1)
-                                            ||s.child("boss").getValue().toString().equals(activity.user))
-                                    {
+                                    if (s.child("open").getValue().toString().equals(1)
+                                            || s.child("boss").getValue().toString().equals(activity.user)) {
                                         drinklist.add(s.getKey().toString());
                                     }
                                 }
@@ -220,6 +220,8 @@ public class OrderFragment extends Fragment {
 
                     }
                 }
+                bl = true;
+            }
         }
 
         @Override
@@ -232,6 +234,7 @@ public class OrderFragment extends Fragment {
 
         @Override
         public void onClick(View v) {
+            bl = false;
             switch (v.getId()){
                 case R.id.tvOrderFood:
                     setListFood();
@@ -333,6 +336,12 @@ public class OrderFragment extends Fragment {
         orderlistView.setAdapter(adapterOrder);
         myChoose = "Drink";
         tvChoose = 2;
+    }
+    public void ResetOrder(){
+        orderDrink.setBackgroundColor(Color.WHITE);
+        orderFood.setBackgroundColor(Color.WHITE);
+        adapterOrder = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1);
+        orderlistView.setAdapter(adapterOrder);
     }
 
 

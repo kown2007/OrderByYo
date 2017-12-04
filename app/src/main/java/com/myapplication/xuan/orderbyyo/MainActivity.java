@@ -136,7 +136,16 @@ public class MainActivity extends AppCompatActivity
         navtitle = (TextView) header.findViewById(R.id.nav_tvTitle);
 
 
+        //隱藏所有的Fragment
+        ft = fm.beginTransaction();
+        ft.hide(orderFragment)
+                .hide(groupFragment)
+                .hide(addOrderFragment)
+                .hide(groupAddFragment)
+                .hide(nextOrderFragment)
+                .commit();
 
+        //
 
     }
 
@@ -158,16 +167,7 @@ public class MainActivity extends AppCompatActivity
         //設置側選單使用者名稱
         navname.setText(sharedPreferences.getString("User",null));
 
-        //隱藏所有的Fragment
-        ft = fm.beginTransaction();
-        ft.hide(orderFragment)
-                .hide(groupFragment)
-                .hide(addOrderFragment)
-                .hide(groupAddFragment)
-                .hide(nextOrderFragment)
-                .commit();
 
-        //
 
     }
 
@@ -309,7 +309,8 @@ public class MainActivity extends AppCompatActivity
                 odref = FirebaseDatabase.getInstance().getReference("OrderList");
                 odref.child(nextChoose1).child(nextChoose2).removeValue();
                 CloseNextOrder();
-                orderFragment.onResume();
+                orderFragment.ResetOrder();
+                orderFragment.bl = false;
                 Toast.makeText(this,"OK",Toast.LENGTH_SHORT).show();
             }else{
                 Toast.makeText(this,"非創建人無法刪除\nInsufficient permissions",Toast.LENGTH_SHORT).show();
@@ -395,6 +396,8 @@ public class MainActivity extends AppCompatActivity
     public void CloseAddOrder(){
         ft = fm.beginTransaction();
         ft.show(orderFragment).hide(addOrderFragment).commit();
+        orderFragment.ResetOrder();
+        orderFragment.bl=true;
     }
 
     //開啟新增群組的Fragment
@@ -406,7 +409,7 @@ public class MainActivity extends AppCompatActivity
     public void CloseAddGroup(){
         ft = fm.beginTransaction();
         ft.show(groupFragment).hide(groupAddFragment).commit();
-        groupFragment.onResume();
+        groupFragment.ResetListView();
     }
 
     //跳出餐點menu
@@ -421,6 +424,8 @@ public class MainActivity extends AppCompatActivity
         ft = fm.beginTransaction();
         ft.hide(nextOrderFragment).show(orderFragment).commit();
     }
+
+
 
     public void SearchGroup(){
         //取自己有的群組
@@ -473,9 +478,7 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    public void ResetOrder(){
-        orderFragment.onResume();
-    }
+
 
     public void DeleteGroup(){
         Spinner spinner = (Spinner) vDeleteGP.findViewById(R.id.spinner_deleteGP);

@@ -174,6 +174,9 @@ public class AddOrderFragment extends Fragment {
                             ref.child(kind).child(title_name.getText().toString())
                                     .child("group").setValue(group);
                             ref.child(kind).child(title_name.getText().toString())
+                                    .child("open").setValue(1);
+
+                            ref.child(kind).child(title_name.getText().toString())
                                     .child("boss").setValue(activity.user);
                             for (int i = 0; i < namelist.size(); i++) {
                                 ref.child(kind).child(title_name.getText().toString())
@@ -181,13 +184,14 @@ public class AddOrderFragment extends Fragment {
                                         .child(namelist.get(i).toString())
                                         .setValue(priceList.get(i).toString());
                             }
-                            ref.child(kind).child(title_name.getText().toString())
-                                    .child("open").setValue(1);
+
                             title_name.setText("");
-                            adapter.clear();
+                            adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1);
                             listView_AO.setAdapter(adapter);
-                            activity.ResetOrder();
                             activity.CloseAddOrder();
+                            namelist.clear();
+                            priceList.clear();
+                            newlist.clear();
                         }
                     });
                     builder.show();
