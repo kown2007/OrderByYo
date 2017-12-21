@@ -19,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -53,12 +54,12 @@ public class OrderFragment extends Fragment {
     private View view;
 
     private Button btnAddOrder;
-    private List foodlist,drinklist,ODclickList,groupList;
+    private List foodlist,drinklist,ODclickList,groupList,order_group_food,order_group_drink;
     private ListView orderlistView;
     private ArrayAdapter adapterOrder;
     public String myChoose="",clickChoose="",OLG;
     int tvChoose=0;
-    public boolean bl;
+    public boolean bl=false;
     MainActivity activity;
 
     //============================================//
@@ -116,14 +117,16 @@ public class OrderFragment extends Fragment {
         drinklist = new ArrayList();
         ODclickList = new ArrayList();
         groupList = new ArrayList();
-
-
+        order_group_food = new ArrayList();
+        order_group_drink = new ArrayList();
         return view;
 
     }
 
     @Override
     public void onResume() {
+
+
         if(tvChoose==1){
             setListFood();
         }else if(tvChoose==2){
@@ -193,6 +196,8 @@ public class OrderFragment extends Fragment {
             if(!bl) {
                 foodlist.clear();
                 drinklist.clear();
+                order_group_food.clear();
+                order_group_drink.clear();
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     if (ds.getKey().toString().equals("Food")) {
                         for (DataSnapshot s : ds.getChildren()) {
@@ -200,6 +205,7 @@ public class OrderFragment extends Fragment {
                                 if (s.child("group").getValue().toString().equals(ob.toString())) {
                                     if (s.child("open").getValue().toString().equals("1")
                                             || s.child("boss").getValue().toString().equals(activity.user)) {
+                                        order_group_food.add(s.child("group").getValue());
                                         foodlist.add(s.getKey().toString());
                                     }
                                 }
@@ -212,6 +218,7 @@ public class OrderFragment extends Fragment {
                                 if (s.child("group").getValue().toString().equals(ob.toString())) {
                                     if (s.child("open").getValue().toString().equals(1)
                                             || s.child("boss").getValue().toString().equals(activity.user)) {
+                                        order_group_drink.add(s.child("group").getValue());
                                         drinklist.add(s.getKey().toString());
                                     }
                                 }
@@ -235,6 +242,7 @@ public class OrderFragment extends Fragment {
         @Override
         public void onClick(View v) {
             bl = false;
+            ref.addValueEventListener(OrderVEL);
             switch (v.getId()){
                 case R.id.tvOrderFood:
                     setListFood();
@@ -249,7 +257,11 @@ public class OrderFragment extends Fragment {
     private View.OnClickListener ClickBtnAdd = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-            ((MainActivity)getActivity()).ShowAddOrder();
+            if(activity.mygroup.size()==0){
+                Toast.makeText(getActivity(),"有群組才可以建立訂單!\nPlease join group first!",Toast.LENGTH_SHORT).show();
+            }else {
+                ((MainActivity) getActivity()).ShowAddOrder();
+            }
         }
     };
 
@@ -304,7 +316,6 @@ public class OrderFragment extends Fragment {
 
                     activity.ShowNextOrder();
                     activity.nextOrderFragment.SetList();
-                    Log.d("AASSS","OD:"+activity.nextChoose1+":"+activity.nextChoose2);
                 }
             };
 
@@ -312,9 +323,11 @@ public class OrderFragment extends Fragment {
 
     public void getMyGroupList(){
         groupList.clear();
+        bl =false;
         for(Object ob:activity.mygroup){
                    groupList.add(ob.toString());
                }
+
         ref.addValueEventListener(OrderVEL);
         orderlistView.setOnItemClickListener(OrderListListener);
 
@@ -322,6 +335,9 @@ public class OrderFragment extends Fragment {
     public void setListFood(){
         orderFood.setBackgroundColor(Color.parseColor("#66FFE6"));
         orderDrink.setBackgroundColor(Color.WHITE);
+        for(int i=0;i<foodlist.size();i++){
+
+        }
         adapterOrder = new ArrayAdapter(
                 getActivity(),android.R.layout.simple_list_item_1,foodlist);
         orderlistView.setAdapter(adapterOrder);
@@ -342,6 +358,8 @@ public class OrderFragment extends Fragment {
         orderFood.setBackgroundColor(Color.WHITE);
         adapterOrder = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1);
         orderlistView.setAdapter(adapterOrder);
+        orderFood.setOnClickListener(ClickFood);
+        orderDrink.setOnClickListener(ClickFood);
     }
 
 

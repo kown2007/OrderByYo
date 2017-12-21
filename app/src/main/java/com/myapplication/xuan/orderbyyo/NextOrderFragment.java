@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -339,6 +340,7 @@ public class NextOrderFragment extends Fragment {
                 total=0;
                     choose1 = activity.nextChoose1;
                     choose2 = activity.nextChoose2;
+                Log.d("nnnn","A:"+choose1+":"+choose2);
                 for(DataSnapshot ds:dataSnapshot.getChildren()){
                     if(ds.getKey().toString().equals(choose1)) {
                         for (DataSnapshot s : ds.child(choose2).getChildren()) {

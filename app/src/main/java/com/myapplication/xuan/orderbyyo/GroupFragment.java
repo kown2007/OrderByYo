@@ -360,7 +360,7 @@ public class GroupFragment extends Fragment {
     public void ResetListView(){
         GroupMy.setBackgroundColor(Color.WHITE);
         GroupAll.setBackgroundColor(Color.WHITE);
-        adapter.clear();
+        adapter=new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1);
         listView.setAdapter(adapter);
         GroupMy.setOnClickListener(tvListener);
         GroupAll.setOnClickListener(tvListener);

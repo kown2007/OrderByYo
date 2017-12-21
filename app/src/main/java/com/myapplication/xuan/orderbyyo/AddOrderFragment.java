@@ -188,7 +188,6 @@ public class AddOrderFragment extends Fragment {
                             title_name.setText("");
                             adapter = new ArrayAdapter(getActivity(),android.R.layout.simple_list_item_1);
                             listView_AO.setAdapter(adapter);
-                            activity.CloseAddOrder();
                             namelist.clear();
                             priceList.clear();
                             newlist.clear();

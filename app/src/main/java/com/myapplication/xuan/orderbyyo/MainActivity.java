@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity
 
     DatabaseReference ref,odref,gpref;
 
-    Boolean blSignIn;
+    Boolean blSignIn,blDeleteUserIn;
     String user,deleteGPChoose;
     public String nextChoose1,nextChoose2,nextBoss,nextOpen;
     public List mygroup,mydataList,searchList,search_n,mygroup_Delete,cos_money_List;
@@ -69,9 +69,6 @@ public class MainActivity extends AppCompatActivity
     ArrayAdapter adapter_DGP;
     boolean bl_delete;
 
-    private EditText searchName;
-    private String searchObject;
-    private Button searchButton;
 
 
 
@@ -136,14 +133,7 @@ public class MainActivity extends AppCompatActivity
         navtitle = (TextView) header.findViewById(R.id.nav_tvTitle);
 
 
-        //隱藏所有的Fragment
-        ft = fm.beginTransaction();
-        ft.hide(orderFragment)
-                .hide(groupFragment)
-                .hide(addOrderFragment)
-                .hide(groupAddFragment)
-                .hide(nextOrderFragment)
-                .commit();
+
 
         //
 
@@ -167,7 +157,15 @@ public class MainActivity extends AppCompatActivity
         //設置側選單使用者名稱
         navname.setText(sharedPreferences.getString("User",null));
 
-
+        //隱藏所有的Fragment
+        ft = fm.beginTransaction();
+        ft.show(homeFragment)
+                .hide(orderFragment)
+                .hide(groupFragment)
+                .hide(addOrderFragment)
+                .hide(groupAddFragment)
+                .hide(nextOrderFragment)
+                .commit();
 
     }
 
@@ -305,10 +303,12 @@ public class MainActivity extends AppCompatActivity
             return true;
         }else
         if (id == R.id.action_deleteorder) {
+            Log.d("nnnnn",nextBoss+":"+user);
             if(nextBoss.equals(user)){
                 odref = FirebaseDatabase.getInstance().getReference("OrderList");
                 odref.child(nextChoose1).child(nextChoose2).removeValue();
                 CloseNextOrder();
+                orderFragment.onResume();
                 orderFragment.ResetOrder();
                 orderFragment.bl = false;
                 Toast.makeText(this,"OK",Toast.LENGTH_SHORT).show();
@@ -352,6 +352,7 @@ public class MainActivity extends AppCompatActivity
             ft.show(orderFragment).hide(groupFragment).hide(homeFragment).commit();
             setTitle("Order System");
             orderFragment.getMyGroupList();
+            orderFragment.ResetOrder();
         } else if (id == R.id.nav_group) {
             ft.show(groupFragment).hide(orderFragment).hide(homeFragment).commit();
             setTitle("Group Item");
@@ -395,9 +396,12 @@ public class MainActivity extends AppCompatActivity
     //關閉新增點餐的Fragment
     public void CloseAddOrder(){
         ft = fm.beginTransaction();
-        ft.show(orderFragment).hide(addOrderFragment).commit();
+
         orderFragment.ResetOrder();
-        orderFragment.bl=true;
+        orderFragment.bl=false;
+        orderFragment.onResume();
+        ft.show(orderFragment).hide(addOrderFragment).commit();
+
     }
 
     //開啟新增群組的Fragment
@@ -515,6 +519,7 @@ public class MainActivity extends AppCompatActivity
                 builder2.setNegativeButton("確定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+                        blDeleteUserIn = false;
                         gpref = FirebaseDatabase.getInstance().getReference("Group");
                         ref = FirebaseDatabase.getInstance().getReference("Users");
                         gpref.addValueEventListener(new ValueEventListener() {
@@ -523,6 +528,29 @@ public class MainActivity extends AppCompatActivity
                                 if(!bl_delete) {
                                     if (dataSnapshot.child(deleteGPChoose).child("boss").getValue().toString().equals(user)) {
                                         gpref.child(deleteGPChoose).removeValue();
+
+                                        ref.addValueEventListener(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                if(!blDeleteUserIn) {
+                                                    for (DataSnapshot ds : dataSnapshot.getChildren()) {
+                                                        for (DataSnapshot dd : ds.child("group").getChildren()) {
+                                                            Log.d("nnnnn", dd.getKey().toString() + ":" + deleteGPChoose);
+                                                            if (dd.getKey().toString().equals(deleteGPChoose)) {
+                                                                ref.child(ds.getKey()).child("group").child(deleteGPChoose).removeValue();
+                                                            }
+                                                        }
+                                                    }
+                                                    blDeleteUserIn=true;
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+
+                                            }
+                                        });
+
                                         ref.child(user).child("group").child(deleteGPChoose).removeValue();
                                         SearchGroup();
                                         groupFragment.ResetListView();
@@ -584,6 +612,7 @@ public class MainActivity extends AppCompatActivity
         builder.show();
 
     }
+
 
 
 }
